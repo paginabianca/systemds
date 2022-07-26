@@ -1,0 +1,77 @@
+#-------------------------------------------------------------
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+#-------------------------------------------------------------
+
+# This script preprocesses the Santander transaction history dataset from keggle.com
+# so that it can be split by splitAndMakeFederated.sh
+
+X= read($data);
+spec = read($spec_file, data_type="scalar", value_type="string");
+# target = ifdef($target, data+"_fed.json");
+# fmt = ifdef($fmt,"text");
+# hostOffset = ifdef($hostOffset,0);
+
+# N = nrow(X);
+# M = ncol(X);
+
+# factor = as.integer(floor(N / nSplit)); # number of rows per partition
+
+# addresses = list();
+# ranges = list();
+
+# for (counter in 1:nSplit){
+#   beginDim = (counter -1)* factor +1;
+#   endDim = counter * factor;
+#   X_part = X[beginDim:endDim,];
+#   write(X_part, data+counter, format=fmt); # writing works with FP64 but not with FP32 as metadata...
+#   hostIX = counter + hostOffset;
+#   addresses = append(addresses,as.scalar(hosts[hostIX]) + "/" + data + counter);
+#   ranges = append(ranges, list(beginDim - 1, 0));
+#   ranges = append(ranges, list(endDim, M));
+# }
+
+# x_fed = federated(type="frame", addresses=addresses, ranges=ranges);
+# # print("Writing federated data...");
+# # write(x_fed, $target); # still the out of bounds error from always...
+# # is 'federated' a format or should this say 'csv' and take the federated info from the federated object.
+
+#
+data = X[,3:ncol(X)]; #200K * 200
+
+# This dataset has a mtd file to reduce binning overhead
+
+# Transformencode
+lim = 10;
+R = matrix(0, rows=lim, cols=1);
+for (i in 1:lim) {
+  print("INFO: starting transformencode");
+  t1 = time();
+  [X_en ,Meta] = transformencode(target=data, spec=spec);
+  t2 = time();
+  R[i,1] = floor((t2-t1)/1000000);
+  print("Elapsed time for transformations using SystemDS = "+floor((t2-t1)/1000000)+" millsec");
+}
+
+R = order(target=R, by=1);
+res = R[1:5,];
+write(res, $target, format="csv", sep="\t");
+print("number of rows "+nrow(X_en) + "\nnumber of cols " + ncol(X_en));
+
+# vim: ft=r

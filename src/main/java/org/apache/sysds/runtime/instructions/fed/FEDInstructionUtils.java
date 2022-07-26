@@ -90,12 +90,12 @@ import org.apache.sysds.runtime.instructions.spark.UnarySPInstruction;
 import org.apache.sysds.runtime.instructions.spark.WriteSPInstruction;
 
 public class FEDInstructionUtils {
-	
+
 	private static String[] PARAM_BUILTINS = new String[]{
 		"replace", "rmempty", "lowertri", "uppertri", "transformdecode", "transformapply", "tokenize"};
 
 	public static boolean noFedRuntimeConversion = false;
-	
+
 	// private static final Log LOG = LogFactory.getLog(FEDInstructionUtils.class.getName());
 
 	// This is currently a rather simplistic to our solution of replacing instructions with their correct federated

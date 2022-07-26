@@ -1,0 +1,53 @@
+#-------------------------------------------------------------
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+#-------------------------------------------------------------
+
+# This script splits a dataframe so that it can be used for the federated tests
+
+data = $data;
+X = read(data);
+hosts = read($hosts);
+nSplit = $nSplit;
+target = ifdef($target, data+"_fed.json");
+fmt = ifdef($fmt,"text");
+hostOffset = ifdef($hostOffset,0);
+
+N = nrow(X);
+M = ncol(X);
+
+factor = as.integer(floor(N / nSplit)); # number of rows per partition
+
+addresses = list();
+ranges = list();
+
+for (counter in 1:nSplit){
+  beginDim = (counter -1)* factor +1;
+  endDim = counter * factor;
+  X_part = X[beginDim:endDim,];
+  write(X_part,data+counter,format=fmt);
+  hostIX = counter + hostOffset;
+  addresses = append(addresses,as.scalar(hosts[hostIX]) + "/" + data + counter);
+  ranges = append(ranges, list(beginDim - 1, 0));
+  ranges = append(ranges, list(endDim, M));
+}
+
+x_fed = federated(type="frame",addresses=addresses, ranges=ranges);
+write(x_fed, target, format="csv");
+#vim: ft=r
