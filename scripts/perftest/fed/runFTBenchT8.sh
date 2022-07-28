@@ -42,8 +42,9 @@ err_report(){
 trap 'err_report $LINENO' ERR
 
 # Set Properties
-export SYSDS_QUIET=0
-# export LOG4JPROP=${BASEPATH}/../conf/log4j.properties
+export SYSDS_QUIET=1
+# export LOG4JPROP=${BASEPATH}/../conf/log4j-off.properties
+export LOG4JPROP=${BASEPATH}'/../conf/log4j-off.properties'
 
 # Start the Federated Workers on Localhost
 "${BASEPATH}"/utils/startFedWorkers.sh systemds "$TEMPDIR" "$NUMFED" "localhost";

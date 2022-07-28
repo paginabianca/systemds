@@ -38,14 +38,23 @@ trap 'err_report $LINENO' ERR
 
 # Set Properties
 export SYSDS_QUIET=1
+export LOG4JPROP=${BASEPATH}'/../conf/log4j-off.properties'
 export SYSTEMDS_STANDALONE_OPTS="-Xmx120g -Xms80g -Xmn50g"
+
+# Create Temp Directory
+if [ ! -d "${TEMPDIR}" ]; then
+  mkdir -p "${TEMPDIR}"
+fi
+
+# Start the Federated Workers on Localhost
+"${BASEPATH}"/utils/startFedWorkers.sh systemds "${TEMPDIR}" "${NUMFED}" "localhost";
 
 
 for d in "T15_spec"
 do
   echo "Split And Make Federated"
   ${CMD} -f "${BASEPATH}"/data/splitAndMakeFederatedFrame.dml \
-    --config"${BASEPATH}"/../conf/SystemDS-config.xml \
+    --config "${BASEPATH}"/../conf/SystemDS-config.xml \
     --nvargs \
       data="${DATA}" \
       nSplit="${NUMFED}" \
@@ -59,7 +68,7 @@ do
     --nvargs \
       data="${TEMPDIR}"/"${DATA_BASENAME}".${d}.fed \
       target="${TEMPDIR}"/"${DATA_BASENAME}".${d}.result \
-      spec_file="${BASEPATH}"/data/${d}.json \
+      spec_file="${BASEPATH}"/data/${d} \
       fmt="csv"
 done
 

@@ -40,6 +40,7 @@ trap 'err_report $LINENO' ERR
 
 # Set Properties
 export SYSDS_QUIET=1
+export LOG4JPROP=${BASEPATH}/../conf/log4j-off.properties
 
 # Create Temp Directory
 if [ ! -d "${TEMPDIR}" ]; then

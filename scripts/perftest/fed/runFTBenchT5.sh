@@ -39,6 +39,7 @@ trap 'err_report $LINENO' ERR
 
 # Set Properties
 export SYSDS_QUIET=0
+export LOG4JPROP=${BASEPATH}'/../conf/log4j-off.properties'
 # export LOG4JPROP=${BASEPATH}/../conf/log4j.properties
 # export SYSTEMDS_STANDALONE_OPTS="-Xmx110g -Xms50g -Xmn20g" #uncomment if running on server
 
