@@ -68,7 +68,7 @@ do
     --nvargs \
       data="${TEMPDIR}"/"${DATA_BASENAME}".${d}.fed \
       target="${TEMPDIR}"/"${DATA_BASENAME}".${d}.result \
-      spec_file="${BASEPATH}"/data/${d} \
+      spec_file="${BASEPATH}"/data/${d}.json \
       fmt="csv"
 done
 
