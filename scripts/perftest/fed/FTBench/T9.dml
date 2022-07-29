@@ -1,6 +1,6 @@
 #-------------------------------------------------------------
 #
-# Licensed to the Apache Software  (ASF) under one
+# Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
 # regarding copyright ownership.  The ASF licenses this file
@@ -19,25 +19,17 @@
 #
 #-------------------------------------------------------------
 
-# FTBench T2 (KDD 98 dataset)
+# FTBench T9 (CatInDat dataset)
+
 data = read($data);
-spec = read($spec_file, data_type="scalar",value_type="string");
-# Forig = read("file:/home/aphani/datasets/KDD98.csv", data_type="frame", format="csv", header=TRUE);
-# Num: Binning+DC, Cat: DC, All: Scale
-# jspec1 = read("file:/home/aphani/datasets/kdd_spec1.json", data_type="scalar", value_type="string");
-#jspec1 = read("file:/home/aphani/datasets/kdd_norm.json", data_type="scalar", value_type="string");
-# F = data[,1:469];
-# y = as.matrix(data[,472])
-print("("+nrow(data)+", "+ncol(data)+")");
+spec = read($spec_file, data_type="scalar", value_type="string");
 
 lim = 10;
 R = matrix(0, rows=lim, cols=1);
 for (i in 1:lim) {
   print("INFO: starting transformencode");
   t1 = time();
-  [X_en ,Meta] = transformencode(target=data, spec=spec);
-  # Scale all the columns after encoding
-  [X_scaled, centering, sfactor] = scale(X_en, TRUE, TRUE); #takes ~2.2 sec
+  [X_en ,Meta] = transformencode(target=data, spec=jspec3);
   t2 = time();
   R[i,1] = floor((t2-t1)/1000000);
   print("Elapsed time for transformations using SystemDS = "+floor((t2-t1)/1000000)+" millsec");
@@ -46,5 +38,4 @@ for (i in 1:lim) {
 R = order(target=R, by=1);
 res = R[1:5,];
 write(res, $target, format="csv", sep="\t");
-print("("+nrow(X_scaled)+", "+ncol(X_scaled)+")");
-#print("("+nrow(X_en)+", "+ncol(X_en)+")");
+print("("+nrow(X_en)+", "+ncol(X_en)+")");
