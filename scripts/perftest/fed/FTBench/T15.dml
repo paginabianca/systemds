@@ -58,7 +58,7 @@ for (i in 1:lim) {
     print("Accuracy with spec, criteo_fe"+iter+" = "+acc+"%");
   }
   t2 = time();
-  totaltime = floor((t6-t5)/1000000);
+  totaltime = floor((t2-t1)/1000000);
   R[i,3] = totaltime;
   print("Elapsed time for feature engineering using SystemDS = "+totaltime+" millsec");
 }

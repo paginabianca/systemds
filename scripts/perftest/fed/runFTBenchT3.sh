@@ -23,10 +23,10 @@
 # Read Parameters
 FILENAME=$0
 CMD=${1:-"systemds"}
-DATADIR=${2:-"temp/T2"}
-TEMPDIR=${3:-"temp/T22"}
+DATADIR=${2:-"temp/T3"}
+TEMPDIR=${3:-"temp/T3"}
 NUMFED=${4:-3}
-DATA=${5:-"${DATADIR}/KDD98.csv"}
+DATA=${5:-"${DATADIR}/criteo_day21_10M"}
 DATA_BASENAME=$(basename "${DATA}")
 BASEPATH=$(dirname "$0")
 
@@ -50,28 +50,20 @@ fi
 "${BASEPATH}"/utils/startFedWorkers.sh systemds "${TEMPDIR}" "${NUMFED}" "localhost";
 
 
-for d in "T2_spec1" "T2_spec2"
+for d in "T3_spec"
 do
-  echo "Preprocessing"
-  ${CMD} -f "${BASEPATH}"/FTBench/T2.preprocess.dml \
-    --config "${BASEPATH}"/../conf/SystemDS-config.xml \
-    --nvargs \
-      data="${DATA}" \
-      target="${TEMPDIR}"/"${DATA_BASENAME}".cleaned \
-
-
   echo "Split And Make Federated"
   ${CMD} -f "${BASEPATH}"/data/splitAndMakeFederatedFrame.dml \
     --config "${BASEPATH}"/../conf/SystemDS-config.xml \
     --nvargs \
-      data="${TEMPDIR}"/"${DATA_BASENAME}".cleaned \
+      data="${DATA}" \
       nSplit="${NUMFED}" \
       target="${TEMPDIR}"/"${DATA_BASENAME}".${d}.fed \
       hosts="${TEMPDIR}"/workers/hosts \
       fmt="csv"
 
   echo "FTBench"
-  ${CMD} -f "${BASEPATH}"/FTBench/T2.dml \
+  ${CMD} -f "${BASEPATH}"/FTBench/T3.dml \
     --config "${BASEPATH}"/../conf/SystemDS-config.xml \
     --nvargs \
       data="${TEMPDIR}"/"${DATA_BASENAME}".${d}.fed \

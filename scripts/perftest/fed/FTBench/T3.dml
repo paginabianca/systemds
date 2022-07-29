@@ -19,11 +19,13 @@
 #
 #-------------------------------------------------------------
 
-# FTBench T1 (UCI Adult dataset)
+# FTBench T3 (Criteo DC dataset)
 data = read($data);
 spec = read($spec_file, data_type="scalar", value_type="string");
 print("("+nrow(data)+", "+ncol(data)+")");
 
+# Initiate read
+print(sum(as.matrix(data[,1])));
 lim = 10;
 R = matrix(0, rows=lim, cols=1);
 for (i in 1:lim) {
