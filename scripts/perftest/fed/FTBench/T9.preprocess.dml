@@ -21,17 +21,17 @@
 
 # FTBench T9 (CatInDat dataset)
 
-data = read($data, data_type="frame", format="csv",header=TRUE);
+train = read($data, data_type="frame", format="csv",header=TRUE);
 # Index out the target column (last col)
-data = data[,1:ncol(train)-1];
-out = data; #300K * 24
+train = train[,1:ncol(train)-1];
+data = train; #300K * 24
 
 # Scale by repeating (scaling factor = 10)
 sfactor = 10;
 if (sfactor > 1) {
   for (i in 2:sfactor)
-    out = rbind(out, train);
+    data = rbind(data, train);
 }
 
-write(out, $target, format="csv", sep="\t");
-print("("+nrow(out)+", "+ncol(out)+")");
+write(data, $target, format="csv", sep="\t");
+print("("+nrow(data)+", "+ncol(data)+")");

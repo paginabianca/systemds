@@ -23,8 +23,8 @@
 # Read Parameters
 FILENAME=$0
 CMD=${1:-"systemds"}
-DATADIR=${2:-"temp/T9"}
-TEMPDIR=${3:-"temp/T9"}
+DATADIR=${2:-"temp/T10"}
+TEMPDIR=${3:-"temp/T10"}
 NUMFED=${4:-3}
 DATA=${5:-"${DATADIR}/catindattrain.csv"}
 DATA_BASENAME=$(basename "${DATA}")
@@ -39,7 +39,7 @@ trap 'err_report $LINENO' ERR
 # Set Properties
 export SYSDS_QUIET=1
 export LOG4JPROP=${BASEPATH}'/../conf/log4j-off.properties'
-# export SYSTEMDS_STANDALONE_OPTS="-Xmx120g -Xms80g -Xmn50g"
+export SYSTEMDS_STANDALONE_OPTS="-Xmx120g -Xms80g -Xmn50g"
 
 # Create Temp Directory
 if [ ! -d "${TEMPDIR}" ]; then
@@ -50,10 +50,10 @@ fi
 "${BASEPATH}"/utils/startFedWorkers.sh systemds "${TEMPDIR}" "${NUMFED}" "localhost";
 
 
-for d in "T9_spec"
+for d in "T10_spec"
 do
   echo "Preprocessing"
-  ${CMD} -f "${BASEPATH}"/FTBench/T9.preprocess.dml \
+  ${CMD} -f "${BASEPATH}"/FTBench/T10.preprocess.dml \
     --config "${BASEPATH}"/../conf/SystemDS-config.xml \
     --nvargs \
       data="${DATA}" \
@@ -71,7 +71,7 @@ do
       fmt="csv"
 
   echo "FTBench"
-  ${CMD} -f "${BASEPATH}"/FTBench/T9.dml \
+  ${CMD} -f "${BASEPATH}"/FTBench/T10.dml \
     --config "${BASEPATH}"/../conf/SystemDS-config.xml \
     --nvargs \
       data="${TEMPDIR}"/"${DATA_BASENAME}".${d}.fed \
