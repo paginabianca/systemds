@@ -26,7 +26,7 @@
 FILENAME=$0
 CMD=${1:-"systemds"}
 DATADIR=${2:-"temp/santander"}
-TEMPDIR=${3:-"temp/adult"}
+TEMPDIR=${3:-"temp/T5"}
 NUMFED=${4:-2}
 DATA=${5:-"${DATADIR}/santander.csv"}
 DATA_BASENAME=$(basename "${DATA}")

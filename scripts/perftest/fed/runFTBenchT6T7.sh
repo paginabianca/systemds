@@ -29,6 +29,7 @@ DATADIR=${2:-"temp/crypto"}
 TEMPDIR=${3:-"temp/crypto"}
 NUMFED=${4:-2}
 DATA=${5:-"${DATADIR}/crypto.csv"}
+DATA_BASENAME=$(basename "${DATA}")
 BASEPATH=$(dirname "$0")
 
 # Error Prints
