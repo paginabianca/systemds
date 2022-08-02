@@ -50,23 +50,23 @@ fi
 # Start the Federated Workers on Localhost
 "${BASEPATH}"/utils/startFedWorkers.sh systemds "${TEMPDIR}" "${NUMFED}" "localhost";
 
+echo "Split And Make Federated"
+${CMD} -f "${BASEPATH}"/data/splitAndMakeFederatedFrame.dml \
+  --config "${BASEPATH}"/../conf/SystemDS-config.xml \
+  --nvargs \
+  data="${DATA}" \
+  nSplit="${NUMFED}" \
+  target="${TEMPDIR}"/"${DATA_BASENAME}".fed\
+  hosts="${TEMPDIR}"/workers/hosts \
+  fmt="csv"
+
 for d in "T1_spec1" "T1_spec2"
 do
-  echo "Split And Make Federated"
-  ${CMD} -f "${BASEPATH}"/data/splitAndMakeFederatedFrame.dml \
-    --config "${BASEPATH}"/../conf/SystemDS-config.xml \
-    --nvargs \
-      data="${DATA}" \
-      nSplit="${NUMFED}" \
-      target="${TEMPDIR}"/"${DATA_BASENAME}"."${d}".fed\
-      hosts="${TEMPDIR}"/workers/hosts \
-      fmt="csv"
-
-  echo "FTBench"
+  echo "FTBench ${d}"
   ${CMD} -f "${BASEPATH}"/FTBench/T1.dml \
     --config "${BASEPATH}"/../conf/SystemDS-config.xml \
     --nvargs \
-      data="${TEMPDIR}"/"${DATA_BASENAME}"."${d}".fed\
+      data="${TEMPDIR}"/"${DATA_BASENAME}".fed\
       target="${TEMPDIR}"/"${DATA_BASENAME}"."${d}".result \
       spec_file="${BASEPATH}"/data/"${d}".json \
       fmt="csv"

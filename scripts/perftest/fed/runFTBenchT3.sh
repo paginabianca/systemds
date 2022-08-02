@@ -25,7 +25,7 @@ FILENAME=$0
 CMD=${1:-"systemds"}
 DATADIR=${2:-"temp/T3"}
 TEMPDIR=${3:-"temp/T3"}
-NUMFED=${4:-3}
+NUMFED=${4:-2}
 DATA=${5:-"${DATADIR}/criteo_day21_10M"}
 DATA_BASENAME=$(basename "${DATA}")
 BASEPATH=$(dirname "$0")
@@ -68,7 +68,7 @@ do
     --nvargs \
       data="${TEMPDIR}"/"${DATA_BASENAME}".${d}.fed \
       target="${TEMPDIR}"/"${DATA_BASENAME}".${d}.result \
-      spec_file="${BASEPATH}"/data/${d} \
+      spec_file="${BASEPATH}"/data/${d}.json \
       fmt="csv"
 done
 

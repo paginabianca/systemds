@@ -26,6 +26,7 @@
 FILENAME=$0
 CMD=${1:-"systemds"}
 DATADIR=${2:-"temp/santander"}
+TEMPDIR=${3:-"temp/adult"}
 NUMFED=${4:-2}
 DATA=${5:-"${DATADIR}/santander.csv"}
 DATA_BASENAME=$(basename "${DATA}")
@@ -39,12 +40,16 @@ trap 'err_report $LINENO' ERR
 
 # Set Properties
 export SYSDS_QUIET=0
-export LOG4JPROP=${BASEPATH}'/../conf/log4j-off.properties'
-# export LOG4JPROP=${BASEPATH}/../conf/log4j.properties
-# export SYSTEMDS_STANDALONE_OPTS="-Xmx110g -Xms50g -Xmn20g" #uncomment if running on server
+export LOG4JPROP=${BASEPATH}/../conf/log4j.properties
+export SYSTEMDS_STANDALONE_OPTS="-Xmx110g -Xms50g -Xmn20g"
+
+# Create Temp Directory
+if [ ! -d "${TEMPDIR}" ]; then
+  mkdir -p "${TEMPDIR}"
+fi
 
 # Start the Federated Workers on Localhost
-"${BASEPATH}"/utils/startFedWorkers.sh systemds "$DATADIR" "$NUMFED" "localhost";
+"${BASEPATH}"/utils/startFedWorkers.sh systemds "${TEMPDIR}" "$NUMFED" "localhost";
 
 # santander_spec1 equi-with binning with numbins=10
 for d in "T5_spec"
@@ -55,19 +60,19 @@ do
     --nvargs \
       data="${DATA}" \
       nSplit="${NUMFED}" \
-      target="${DATADIR}"/"${DATA_BASENAME}"."${d}".fed\
-      hosts="${DATADIR}"/workers/hosts \
+      target="${TEMPDIR}"/"${DATA_BASENAME}".fed\
+      hosts="${TEMPDIR}"/workers/hosts \
       fmt="csv"
 
   echo "FTBench"
   ${CMD} -f "${BASEPATH}"/FTBench/T5.dml \
     --config "${BASEPATH}"/../conf/SystemDS-config.xml \
     --nvargs \
-      data="${DATADIR}"/"${DATA_BASENAME}"."${d}".fed\
-      target="${DATADIR}"/"${DATA_BASENAME}"."${d}".result \
+      data="${TEMPDIR}"/"${DATA_BASENAME}".fed\
+      target="${TEMPDIR}"/"${DATA_BASENAME}"."${d}".result \
       spec_file="${BASEPATH}"/data/"${d}".json \
       fmt="csv"
 done
 
 # Kill the Federated Workers
-${BASEPATH}/utils/killFedWorkers.sh $DATADIR;
+"${BASEPATH}"/utils/killFedWorkers.sh "$TEMPDIR";

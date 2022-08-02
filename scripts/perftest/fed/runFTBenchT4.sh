@@ -25,7 +25,7 @@ FILENAME=$0
 CMD=${1:-"systemds"}
 DATADIR=${2:-"temp/T4"}
 TEMPDIR=${3:-"temp/T4"}
-NUMFED=${4:-3}
+NUMFED=${4:-2}
 DATA=${5:-"${DATADIR}/criteo_day21_10M_cleaned"}
 DATA_BASENAME=$(basename "${DATA}")
 BASEPATH=$(dirname "$0")
@@ -50,23 +50,23 @@ fi
 "${BASEPATH}"/utils/startFedWorkers.sh systemds "${TEMPDIR}" "${NUMFED}" "localhost";
 
 
+echo "Split And Make Federated"
+${CMD} -f "${BASEPATH}"/data/splitAndMakeFederatedFrame.dml \
+  --config "${BASEPATH}"/../conf/SystemDS-config.xml \
+  --nvargs \
+  data="${DATA}" \
+  nSplit="${NUMFED}" \
+  target="${TEMPDIR}"/"${DATA_BASENAME}".fed \
+  hosts="${TEMPDIR}"/workers/hosts \
+  fmt="csv"
+
 for d in "T4_spec1" "T4_spec2"
 do
-  echo "Split And Make Federated"
-  ${CMD} -f "${BASEPATH}"/data/splitAndMakeFederatedFrame.dml \
-    --config "${BASEPATH}"/../conf/SystemDS-config.xml \
-    --nvargs \
-      data="${DATA}" \
-      nSplit="${NUMFED}" \
-      target="${TEMPDIR}"/"${DATA_BASENAME}".${d}.fed \
-      hosts="${TEMPDIR}"/workers/hosts \
-      fmt="csv"
-
   echo "FTBench"
   ${CMD} -f "${BASEPATH}"/FTBench/T4.dml \
     --config "${BASEPATH}"/../conf/SystemDS-config.xml \
     --nvargs \
-      data="${TEMPDIR}"/"${DATA_BASENAME}".${d}.fed \
+      data="${TEMPDIR}"/"${DATA_BASENAME}".fed \
       target="${TEMPDIR}"/"${DATA_BASENAME}".${d}.result \
       spec_file="${BASEPATH}"/data/${d}.json \
       fmt="csv"
