@@ -25,7 +25,7 @@ FILENAME=$0
 CMD=${1:-"systemds"}
 DATADIR=${2:-"temp/T13"}
 TEMPDIR=${3:-"temp/T13"}
-NUMFED=${4:-3}
+NUMFED=${4:-2}
 DATA=${5:-"${DATADIR}/T13.csv"}
 DATA_BASENAME=$(basename "${DATA}")
 BASEPATH=$(dirname "$0")
@@ -39,7 +39,7 @@ trap 'err_report $LINENO' ERR
 # Set Properties
 export SYSDS_QUIET=1
 export LOG4JPROP=${BASEPATH}'/../conf/log4j-off.properties'
-# export SYSTEMDS_STANDALONE_OPTS="-Xmx120g -Xms80g -Xmn50g"
+export SYSTEMDS_STANDALONE_OPTS="-Xmx120g -Xms80g -Xmn50g"
 
 # Create Temp Directory
 if [ ! -d "${TEMPDIR}" ]; then

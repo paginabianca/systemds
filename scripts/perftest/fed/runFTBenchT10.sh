@@ -25,8 +25,8 @@ FILENAME=$0
 CMD=${1:-"systemds"}
 DATADIR=${2:-"temp/T10"}
 TEMPDIR=${3:-"temp/T10"}
-NUMFED=${4:-3}
-DATA=${5:-"${DATADIR}/catindattrain.csv"}
+NUMFED=${4:-2}
+DATA=${5:-"${DATADIR}/AminerAbstract.csv"}
 DATA_BASENAME=$(basename "${DATA}")
 BASEPATH=$(dirname "$0")
 
@@ -52,21 +52,13 @@ fi
 
 for d in "T10_spec"
 do
-  echo "Preprocessing"
-  ${CMD} -f "${BASEPATH}"/FTBench/T10.preprocess.dml \
-    --config "${BASEPATH}"/../conf/SystemDS-config.xml \
-    --nvargs \
-      data="${DATA}" \
-      target="${TEMPDIR}"/"${DATA_BASENAME}".scaled \
-
-
   echo "Split And Make Federated"
   ${CMD} -f "${BASEPATH}"/data/splitAndMakeFederatedFrame.dml \
     --config "${BASEPATH}"/../conf/SystemDS-config.xml \
     --nvargs \
-      data="${TEMPDIR}"/"${DATA_BASENAME}".scaled \
+      data="${DATA}" \
       nSplit="${NUMFED}" \
-      target="${TEMPDIR}"/"${DATA_BASENAME}".${d}.fed \
+      target="${TEMPDIR}"/"${DATA_BASENAME}".fed \
       hosts="${TEMPDIR}"/workers/hosts \
       fmt="csv"
 
@@ -74,7 +66,7 @@ do
   ${CMD} -f "${BASEPATH}"/FTBench/T10.dml \
     --config "${BASEPATH}"/../conf/SystemDS-config.xml \
     --nvargs \
-      data="${TEMPDIR}"/"${DATA_BASENAME}".${d}.fed \
+      data="${TEMPDIR}"/"${DATA_BASENAME}".fed \
       target="${TEMPDIR}"/"${DATA_BASENAME}".${d}.result \
       spec_file="${BASEPATH}"/data/${d}.json \
       fmt="csv"

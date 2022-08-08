@@ -53,19 +53,19 @@ do
     --nvargs \
       data="${DATA}" \
       nSplit="${NUMFED}" \
-      target="${DATADIR}"/"${DATA_BASENAME}"."${d}".fed\
-      hosts="${DATADIR}"/workers/hosts \
+      target="${TEMPDIR}"/"${DATA_BASENAME}"."${d}".fed\
+      hosts="${TEMPDIR}"/workers/hosts \
       fmt="csv"
 
   # splitting and making the code federated...
   ${CMD} -f "${BASEPATH}"/FTBench/T6T7.dml \
     --config "${BASEPATH}"/../conf/SystemDS-config.xml \
     --nvargs \
-      data="${DATADIR}"/"${DATA_BASENAME}"."${d}".fed\
-      target="${DATADIR}"/"${DATA_BASENAME}"."${d}".result \
+      data="${TEMPDIR}"/"${DATA_BASENAME}"."${d}".fed\
+      target="${TEMPDIR}"/"${DATA_BASENAME}"."${d}".result \
       spec_file="${BASEPATH}"/data/"${d}".json \
       fmt="csv"
 done
 
 # Kill the Federated Workers
-${BASEPATH}/utils/killFedWorkers.sh $TEMPDIR;
+"${BASEPATH}"/utils/killFedWorkers.sh "$TEMPDIR";

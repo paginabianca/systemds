@@ -27,8 +27,8 @@ DATADIR=${2:-"temp/T11"}
 TEMPDIR=${3:-"temp/T11"}
 NUMFED=${4:-3}
 DATA=${5:-"${DATADIR}/AminerAbstractSequence.csv"}
-METAFRAME=${6:-"${DATADIR}/wiki_metaframe"}
-EMBEDDINGS=${7:-"${DATADIR}/wiki_embeddings"}
+METAFRAME=${6:-"${DATADIR}/wiki_embeddings/wiki_metaframe"}
+EMBEDDINGS=${7:-"${DATADIR}/wiki_embeddings/wiki_embeddings"}
 DATA_BASENAME=$(basename "${DATA}")
 BASEPATH=$(dirname "$0")
 
@@ -58,6 +58,18 @@ do
   do
     echo "Split And Make Federated "$INPUT
     ${CMD} -f "${BASEPATH}"/data/splitAndMakeFederatedFrame.dml \
+      --config "${BASEPATH}"/../conf/SystemDS-config.xml \
+      --nvargs \
+        data="${INPUT}" \
+        nSplit="${NUMFED}" \
+        target="${TEMPDIR}"/"$(basename "$INPUT")".${d}.fed \
+        hosts="${TEMPDIR}"/workers/hosts \
+        fmt="csv"
+  done
+  for INPUT in $EMBEDDINGS
+  do
+    echo "Split And Make Federated "$INPUT
+    ${CMD} -f "${BASEPATH}"/data/splitAndMakeFederated.dml \
       --config "${BASEPATH}"/../conf/SystemDS-config.xml \
       --nvargs \
         data="${INPUT}" \
