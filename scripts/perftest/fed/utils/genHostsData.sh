@@ -47,12 +47,12 @@ if [ -d "${OUT}/hosts" ]; then
   rm -rf  "${OUT}/hosts"
 fi
 
-mkdir -p "${OUT}/hosts"
-
 if [ -f "${OUT}/hosts.mtd" ]; then
   rm -rf  "${OUT}/hosts.mtd"
-  echo "${HOSTS_META}" > "${OUT}"/hosts.mtd
 fi
+
+mkdir -p "${OUT}/hosts"
+echo "${HOSTS_META}" > "${OUT}"/hosts.mtd
 
 for (( i=0; i<"${HOST_COUNT}"; i++)); do
   echo "${HOSTS[$i]}" > "${OUT}/hosts/${i}_null"
