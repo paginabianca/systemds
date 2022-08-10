@@ -45,8 +45,9 @@ HOST_META="{\"data_type\": \"scalar\", \"value_type\": \"string\", \"format\": \
 
 if [ -d "${OUT}/hosts" ]; then
   rm -rf  "${OUT}/hosts"
-  mkdir -p "${OUT}/hosts"
 fi
+
+mkdir -p "${OUT}/hosts"
 
 if [ -f "${OUT}/hosts.mtd" ]; then
   rm -rf  "${OUT}/hosts.mtd"
