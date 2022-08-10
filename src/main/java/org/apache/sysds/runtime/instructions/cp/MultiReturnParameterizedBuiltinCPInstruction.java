@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -37,7 +37,12 @@ import org.apache.sysds.runtime.matrix.operators.Operator;
 import org.apache.sysds.runtime.transform.encode.EncoderFactory;
 import org.apache.sysds.runtime.transform.encode.MultiColumnEncoder;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 public class MultiReturnParameterizedBuiltinCPInstruction extends ComputationCPInstruction {
+
+	protected static final Log LOG = LogFactory.getLog(MultiReturnParameterizedBuiltinCPInstruction.class.getName());
 	protected final ArrayList<CPOperand> _outputs;
 
 	private MultiReturnParameterizedBuiltinCPInstruction(Operator op, CPOperand input1, CPOperand input2,
@@ -59,6 +64,7 @@ public class MultiReturnParameterizedBuiltinCPInstruction extends ComputationCPI
 	}
 
 	public static MultiReturnParameterizedBuiltinCPInstruction parseInstruction(String str) {
+        LOG.debug("parseInstruction");
 		String[] parts = InstructionUtils.getInstructionPartsWithValueType(str);
 		ArrayList<CPOperand> outputs = new ArrayList<>();
 		String opcode = parts[0];
@@ -79,6 +85,7 @@ public class MultiReturnParameterizedBuiltinCPInstruction extends ComputationCPI
 
 	@Override
 	public void processInstruction(ExecutionContext ec) {
+        LOG.debug("processInstruction:" );
 		// obtain and pin input frame
 		FrameBlock fin = ec.getFrameInput(input1.getName());
 		String spec = ec.getScalarInput(input2).getStringValue();
@@ -86,9 +93,11 @@ public class MultiReturnParameterizedBuiltinCPInstruction extends ComputationCPI
 
 		// execute block transform encode
 		MultiColumnEncoder encoder = EncoderFactory.createEncoder(spec, colnames, fin.getNumColumns(), null);
+        LOG.debug("createdEncoder");
 		// TODO: Assign #threads in compiler and pass via the instruction string
 		MatrixBlock data = encoder.encode(fin, OptimizerUtils.getTransformNumThreads()); // build and apply
-		FrameBlock meta = encoder.getMetaData(new FrameBlock(fin.getNumColumns(), ValueType.STRING), 
+        LOG.debug("encodedColumns");
+		FrameBlock meta = encoder.getMetaData(new FrameBlock(fin.getNumColumns(), ValueType.STRING),
 				OptimizerUtils.getTransformNumThreads());
 		meta.setColumnNames(colnames);
 

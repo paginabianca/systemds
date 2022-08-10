@@ -241,7 +241,8 @@ public class MultiColumnEncoder implements Encoder {
 	}
 
 	public void build(CacheBlock in) {
-		build(in, 1);
+        LOG.debug(".built(k=1)");
+		build(in, 1); // This should be MT???
 	}
 
 	public void build(CacheBlock in, int k) {
