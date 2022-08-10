@@ -38,7 +38,7 @@
 declare -a HOSTS=("127.27.206.5:8022" "127.27.206.6:8022" "127.27.206.10:8022")
 
 OUT=${1:-"~/datasets/temp"}
-HOSTS_META="{\"data_type\": \"list\", \"rows\": ${HOSTS[@]}, \"cols\": 1, \"format\": \"text\"}"
+HOSTS_META="{\"data_type\": \"list\", \"rows\": ${#HOSTS[@]}, \"cols\": 1, \"format\": \"text\"}"
 HOST_COUNT=${#HOSTS[@]}
 HOST_META="{\"data_type\": \"scalar\", \"value_type\": \"string\", \"format\": \"text\"}"
 
