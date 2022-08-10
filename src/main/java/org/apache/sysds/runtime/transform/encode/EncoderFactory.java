@@ -38,10 +38,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import static org.apache.sysds.runtime.util.CollectionUtils.except;
 import static org.apache.sysds.runtime.util.CollectionUtils.unionDistinct;
 
 public class EncoderFactory {
+	protected static final Log LOG = LogFactory.getLog(EncoderFactory.class.getName());
 
 	public static MultiColumnEncoder createEncoder(String spec, String[] colnames, int clen, FrameBlock meta) {
 		return createEncoder(spec, colnames, UtilFunctions.nCopies(clen, ValueType.STRING), meta);
@@ -200,8 +204,10 @@ public class EncoderFactory {
 			return EncoderType.PassThrough.ordinal();
 		else if(columnEncoder instanceof ColumnEncoderRecode)
 			return EncoderType.Recode.ordinal();
-        else if(columnEncoder instanceof ColumnEncoderUDF)
+        else if(columnEncoder instanceof ColumnEncoderUDF){
+            LOG.debug("getEncoderType: ColumnEncoderUDF" + columnEncoder.toString());
             return EncoderType.Udf.ordinal();
+        }
 		throw new DMLRuntimeException("Unsupported encoder type: " + columnEncoder.getClass().getCanonicalName());
 	}
 
