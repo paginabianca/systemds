@@ -338,6 +338,8 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
 		@Override
 		public FederatedResponse execute(ExecutionContext ec, Data... data) {
           LOG.debug("executing ExecuteFrameEncoder");
+          String funcName = ec.getScalarInput(inputs[0]).getStringValue();
+
 			FrameBlock fb = ((FrameObject) data[0]).acquireReadAndRelease();
 
 			// offset is applied on the Worker to shift the local encoders to their respective column

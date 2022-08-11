@@ -89,6 +89,9 @@ public class EvalNaryCPInstruction extends BuiltinNaryCPInstruction {
 		//    creates a named list used the names of the function signature
 
 		//1. get the namespace and function names
+      for (int i = 0; i < inputs.length; i++) {
+        LOG.debug("inputs["+i+"]: "+inputs[i].getName());
+      }
 		String funcName = ec.getScalarInput(inputs[0]).getStringValue();
       LOG.debug("funcName: "+funcName);
 		String nsName = null; //default namespace

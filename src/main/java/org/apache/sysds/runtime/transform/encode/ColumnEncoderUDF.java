@@ -57,6 +57,10 @@ public class ColumnEncoderUDF extends ColumnEncoder {
 		_fName = name;
 	}
 
+	public ColumnEncoderUDF(String name) {
+		this(-1, name);
+	}
+
 	public ColumnEncoderUDF() {
 		this(-1, null);
 	}
