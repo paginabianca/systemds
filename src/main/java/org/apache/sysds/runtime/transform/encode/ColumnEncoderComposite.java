@@ -40,6 +40,9 @@ import org.apache.sysds.runtime.matrix.data.MatrixBlock;
 import org.apache.sysds.runtime.util.DependencyTask;
 import org.apache.sysds.runtime.util.DependencyThreadPool;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Simple composite encoder that applies a list of encoders in specified order. By implementing the default encoder API
  * it can be used as a drop-in replacement for any other encoder.
@@ -48,6 +51,7 @@ import org.apache.sysds.runtime.util.DependencyThreadPool;
 // TODO assert each type of encoder can only be present once
 public class ColumnEncoderComposite extends ColumnEncoder {
 	private static final long serialVersionUID = -8473768154646831882L;
+	protected static final Log LOG = LogFactory.getLog(ColumnEncoderComposite.class.getName());
 
 	private List<ColumnEncoder> _columnEncoders = null;
 	private FrameBlock _meta = null;
@@ -203,12 +207,12 @@ public class ColumnEncoderComposite extends ColumnEncoder {
       LOG.debug("applying all encoders of compositeEncoder. CE.size():"+_columnEncoders.size());
 		try {
 			for(int i = 0; i < _columnEncoders.size(); i++) {
+                LOG.debug("CEC.apply("+i+").type:"+ _columnEncoders.get(i).getTransformType());
 				if(i == 0) {
 					// 1. encoder writes data into MatrixBlock Column all others use this column for further encoding
 					_columnEncoders.get(i).apply(in, out, outputCol, rowStart, blk);
 				}
 				else {
-                  LOG.debug("CEC.apply("+i+").type:"+ _columnEncoders.get(i).getTransformType());
 					_columnEncoders.get(i).apply(out, out, outputCol, rowStart, blk);
 				}
 			}
