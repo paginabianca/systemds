@@ -96,6 +96,7 @@ public class ColumnEncoderUDF extends ColumnEncoder {
 				new CPOperand("I", ValueType.UNKNOWN, DataType.LIST)});
         LOG.debug("called UDF");
 		fun.processInstruction(ec);
+        LOG.debug("postProcessing");
 
 		//obtain result and in-place write back
 		MatrixBlock ret = ((MatrixObject)ec.getCacheableData("O")).acquireReadAndRelease();

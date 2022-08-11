@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -59,29 +59,35 @@ import org.apache.sysds.runtime.matrix.operators.Operator;
 import org.apache.sysds.runtime.util.DataConverter;
 import org.apache.sysds.runtime.util.ProgramConverter;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Eval built-in function instruction
  * Note: it supports only single matrix[double] output
  */
 public class EvalNaryCPInstruction extends BuiltinNaryCPInstruction {
+	private static final Log LOG = LogFactory.getLog(EvalNaryCPInstruction.class.getName());
 
-	// default: not in parfor context; otherwise updated via 
+	// default: not in parfor context; otherwise updated via
 	// updateInstructionThreadID during parfor worker setup and/or recompilation
 	private int _threadID = 0;
-	
+
 	public EvalNaryCPInstruction(Operator op, String opcode, String istr, CPOperand output, CPOperand... inputs) {
 		super(op, opcode, istr, output, inputs);
 	}
 
 	@Override
 	public void processInstruction(ExecutionContext ec) {
+      LOG.debug("processInstruction");
+
 		// There are two main types of eval function calls, which share most of the
 		// code for lazy function loading and execution:
 		// a) a single-return eval fcall returns a matrix which is bound to the output
 		//    (if the function returns multiple objects, the first one is used as output)
 		// b) a multi-return eval fcall gets all returns of the function call and
 		//    creates a named list used the names of the function signature
-		
+
 		//1. get the namespace and function names
 		String funcName = ec.getScalarInput(inputs[0]).getStringValue();
 		String nsName = null; //default namespace
@@ -90,17 +96,17 @@ public class EvalNaryCPInstruction extends BuiltinNaryCPInstruction {
 			funcName = parts[1];
 			nsName = parts[0];
 		}
-		
+
 		// bind the inputs to avoiding being deleted after the function call
 		CPOperand[] boundInputs = Arrays.copyOfRange(inputs, 1, inputs.length);
-		
+
 		//2. copy the created output matrix
 		MatrixObject outputMO = !output.isMatrix() ? null :
 			new MatrixObject(ec.getMatrixObject(output.getName()));
-		
-		//3. lazy loading of dml-bodied builtin functions (incl. rename 
+
+		//3. lazy loading of dml-bodied builtin functions (incl. rename
 		// of function name to dml-bodied builtin scheme (data-type-specific)
-		DataType dt1 = boundInputs[0].getDataType().isList() ? 
+		DataType dt1 = boundInputs[0].getDataType().isList() ?
 			DataType.MATRIX : boundInputs[0].getDataType();
 		String funcName2 = Builtins.getInternalFName(funcName, dt1);
 		if( !ec.getProgram().containsFunctionProgramBlock(nsName, funcName)) {
@@ -108,7 +114,7 @@ public class EvalNaryCPInstruction extends BuiltinNaryCPInstruction {
 			if( !Builtins.contains(funcName, true, false) //builtins and their private functions
 				&& !ec.getProgram().containsFunctionProgramBlock(DMLProgram.BUILTIN_NAMESPACE, funcName2)) {
 				String msgNs = (nsName==null) ? DMLProgram.DEFAULT_NAMESPACE : nsName;
-				throw new DMLRuntimeException("Function '" 
+				throw new DMLRuntimeException("Function '"
 					+ DMLProgram.constructFunctionKey(msgNs, funcName)+"' (called through eval) is non-existing.");
 			}
 			//load and compile missing builtin function
@@ -119,10 +125,10 @@ public class EvalNaryCPInstruction extends BuiltinNaryCPInstruction {
 			}
 			funcName = funcName2;
 		}
-		
+
 		//obtain function block (but unoptimized version of existing functions for correctness)
 		FunctionProgramBlock fpb = ec.getProgram().getFunctionProgramBlock(nsName, funcName, false);
-		
+
 		//copy function block in parfor context (avoid excessive thread contention on recompilation)
 		if( ProgramBlock.isThreadID(_threadID) && ParForProgramBlock.COPY_EVAL_FUNCTIONS ) {
 			String funcNameParfor = funcName + Lop.CP_CHILD_THREAD + _threadID;
@@ -134,7 +140,7 @@ public class EvalNaryCPInstruction extends BuiltinNaryCPInstruction {
 			fpb = ec.getProgram().getFunctionProgramBlock(nsName, funcNameParfor, false);
 			funcName = funcNameParfor;
 		}
-		
+
 		//4. expand list arguments if needed
 		CPOperand[] boundInputs2 = null;
 		LineageItem[] lineageInputs = null;
@@ -156,22 +162,22 @@ public class EvalNaryCPInstruction extends BuiltinNaryCPInstruction {
 				boundInputs2[i] = new CPOperand(varName, in);
 			}
 			boundInputs = boundInputs2;
-			lineageInputs = !DMLScript.LINEAGE ? null : 
+			lineageInputs = !DMLScript.LINEAGE ? null :
 				lo.getLineageItems().toArray(new LineageItem[lo.getLength()]);
 		}
-		
+
 		// bind the outputs
 		List<String> boundOutputNames = new ArrayList<>();
 		if( output.getDataType().isMatrix() )
 			boundOutputNames.add(output.getName());
 		else //list
 			boundOutputNames.addAll(fpb.getOutputParamNames());
-		
+
 		//5. call the function (to unoptimized function)
 		FunctionCallCPInstruction fcpi = new FunctionCallCPInstruction(nsName, funcName,
 			false, boundInputs, lineageInputs, fpb.getInputParamNames(), boundOutputNames, "eval func");
 		fcpi.processInstruction(ec);
-		
+
 		//6a. convert the result to matrix
 		if( output.getDataType().isMatrix() ) {
 			Data newOutput = ec.getVariable(output);
@@ -202,20 +208,20 @@ public class EvalNaryCPInstruction extends BuiltinNaryCPInstruction {
 			ListObject listOutput = new ListObject(ldata, lnames);
 			ec.setVariable(output.getName(), listOutput);
 		}
-		
+
 		//7. cleanup of variable expanded from list
 		if( boundInputs2 != null ) {
 			for( CPOperand op : boundInputs2 )
 				VariableCPInstruction.processRmvarInstruction(ec, op.getName());
 		}
 	}
-	
+
 	@Override
 	public void updateInstructionThreadID(String pattern, String replace) {
 		//obtain thread (parfor worker) ID from replacement string
 		_threadID = Integer.parseInt(replace.substring(Lop.CP_CHILD_THREAD.length()));
 	}
-	
+
 	private static void compileFunctionProgramBlock(String name, DataType dt, Program prog) {
 		//load builtin file and parse function statement block
 		String nsName = DMLProgram.BUILTIN_NAMESPACE;
@@ -223,16 +229,16 @@ public class EvalNaryCPInstruction extends BuiltinNaryCPInstruction {
 			.loadAndParseBuiltinFunction(name, nsName, true); //forced for remote parfor
 		if( fsbs.isEmpty() )
 			throw new DMLRuntimeException("Failed to compile function '"+name+"'.");
-		
+
 		DMLProgram dmlp = (prog.getDMLProg() != null) ? prog.getDMLProg() :
 			fsbs.get(Builtins.getInternalFName(name, dt)).getDMLProg();
-		
+
 		//filter already existing functions (e.g., already loaded internally-called functions)
 		//note: in remote parfor the runtime program might contain more functions than the DML program
 		fsbs = (dmlp.getBuiltinFunctionDictionary() == null) ? fsbs : fsbs.entrySet().stream()
 			.filter(e -> !dmlp.getBuiltinFunctionDictionary().containsFunction(e.getKey()))
 			.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
-		
+
 		// prepare common data structures, including a consolidated dml program
 		// to facilitate function validation which tries to inline lazily loaded
 		// and existing functions.
@@ -244,7 +250,7 @@ public class EvalNaryCPInstruction extends BuiltinNaryCPInstruction {
 		DMLTranslator dmlt = new DMLTranslator(dmlp);
 		ProgramRewriter rewriter = new ProgramRewriter(true, false);
 		ProgramRewriter rewriter2 = new ProgramRewriter(false, true);
-		
+
 		// validate functions, in two passes for cross references
 		for( FunctionStatementBlock fsb : fsbs.values() ) {
 			dmlt.liveVariableAnalysisFunction(dmlp, fsb);
@@ -252,7 +258,7 @@ public class EvalNaryCPInstruction extends BuiltinNaryCPInstruction {
 			//called functions might not be available in dmlp but prog in remote parfor
 			dmlt.validateFunction(dmlp, fsb, true);
 		}
-		
+
 		// compile hop dags, rewrite hop dags and compile lop dags
 		// incl change of function calls to unoptimized functions calls
 		for( FunctionStatementBlock fsb : fsbs.values() ) {
@@ -268,7 +274,7 @@ public class EvalNaryCPInstruction extends BuiltinNaryCPInstruction {
 			DMLTranslator.refreshMemEstimates(fsb);
 			dmlt.constructLops(fsb);
 		}
-		
+
 		// compile runtime program
 		for( Entry<String,FunctionStatementBlock> fsb : fsbs.entrySet() ) {
 			FunctionProgramBlock fpb = (FunctionProgramBlock) dmlt
@@ -279,11 +285,11 @@ public class EvalNaryCPInstruction extends BuiltinNaryCPInstruction {
 				prog.addFunctionProgramBlock(nsName, fsb.getKey(), fpb, false); // unoptimized -> eval
 		}
 	}
-	
+
 	private static ListObject appendNamedDefaults(ListObject params, StatementBlock sb) {
 		if( !params.isNamedList() || sb == null )
 			return params;
-		
+
 		//best effort replacement of scalar literal defaults
 		FunctionStatement fstmt = (FunctionStatement) sb.getStatement(0);
 		ListObject ret = new ListObject(params);
@@ -303,14 +309,14 @@ public class EvalNaryCPInstruction extends BuiltinNaryCPInstruction {
 				}
 			}
 		}
-		
+
 		return ret;
 	}
-	
+
 	private static ListObject appendPositionalDefaults(ListObject params, StatementBlock sb) {
 		if( sb == null )
 			return params;
-		
+
 		//best effort replacement of scalar literal defaults
 		FunctionStatement fstmt = (FunctionStatement) sb.getStatement(0);
 		ListObject ret = new ListObject(params);
@@ -327,17 +333,17 @@ public class EvalNaryCPInstruction extends BuiltinNaryCPInstruction {
 				LineageItemUtils.createScalarLineageItem(ScalarObjectFactory.createLiteralOp(sobj));
 			ret.add(sobj, litem);
 		}
-		
+
 		return ret;
 	}
-	
+
 	private static void checkValidArguments(List<Data> loData, List<String> loNames, List<String> fArgNames) {
 		//check number of parameters
 		int listSize = (loNames != null) ? loNames.size() : loData.size();
 		if( listSize != fArgNames.size() )
 			throw new DMLRuntimeException("Failed to expand list for function call "
 				+ "(mismatching number of arguments: "+listSize+" vs. "+fArgNames.size()+").");
-		
+
 		//check individual parameters
 		if( loNames != null ) {
 			HashSet<String> probe = new HashSet<>();
@@ -348,7 +354,7 @@ public class EvalNaryCPInstruction extends BuiltinNaryCPInstruction {
 					throw new DMLRuntimeException("List argument named '"+var+"' not in function signature.");
 		}
 	}
-	
+
 	private static ListObject reorderNamedListForFunctionCall(ListObject in, List<String> fArgNames) {
 		List<Data> sortedData = new ArrayList<>();
 		List<LineageItem> sortedLI = DMLScript.LINEAGE ? new ArrayList<>() : null;
