@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -41,11 +41,14 @@ import org.apache.sysds.runtime.matrix.data.MatrixBlock;
 import org.apache.sysds.runtime.util.DependencyTask;
 import org.apache.sysds.utils.stats.TransformStatistics;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 public class ColumnEncoderUDF extends ColumnEncoder {
+	private static final Log LOG = LogFactory.getLog(ColumnEncoderUDF.class.getName());
 
 	//TODO pass execution context through encoder factory for arbitrary functions not just builtin
 	//TODO integration into IPA to ensure existence of unoptimized functions
-	
+
 	private final String _fName;
 	public int _domainSize = 1;
 
@@ -72,9 +75,10 @@ public class ColumnEncoderUDF extends ColumnEncoder {
 	public List<DependencyTask<?>> getBuildTasks(CacheBlock in) {
 		return null;
 	}
-	
+
 	@Override
 	public void applyDense(CacheBlock in, MatrixBlock out, int outputCol, int rowStart, int blk) {
+      LOG.debug("applyDense");
 		long t0 = DMLScript.STATISTICS ? System.nanoTime() : 0;
 		//create execution context and input
 		ExecutionContext ec = ExecutionContextFactory.createContext(new Program(new DMLProgram()));
@@ -82,13 +86,15 @@ public class ColumnEncoderUDF extends ColumnEncoder {
 		MatrixBlock col = out.slice(0, in.getNumRows()-1, outputCol, outputCol+_domainSize-1, new MatrixBlock());
 		ec.setVariable("I", new ListObject(new Data[] {ParamservUtils.newMatrixObject(col, true)}));
 		ec.setVariable("O", ParamservUtils.newMatrixObject(col, true));
-		
+
+        LOG.debug("calling UDF");
 		//call UDF function via eval machinery
 		var fun = new EvalNaryCPInstruction(null, "eval", "",
 			new CPOperand("O", ValueType.FP64, DataType.MATRIX),
 			new CPOperand[] {
 				new CPOperand(_fName, ValueType.STRING, DataType.SCALAR, true),
 				new CPOperand("I", ValueType.UNKNOWN, DataType.LIST)});
+        LOG.debug("called UDF");
 		fun.processInstruction(ec);
 
 		//obtain result and in-place write back
@@ -120,18 +126,18 @@ public class ColumnEncoderUDF extends ColumnEncoder {
 
 			if(distinct != -1) {
 				_domainSize = distinct;
-				LOG.debug("DummyCoder for column: " + _colID + " has domain size: " + _domainSize);
+				// LOG.debug("DummyCoder for column: " + _colID + " has domain size: " + _domainSize);
 			}
 		}
 	}
-	
+
 	@Override
 	protected ColumnApplyTask<ColumnEncoderUDF> getSparseTask(CacheBlock in,
 		MatrixBlock out, int outputCol, int startRow, int blk)
 	{
 		throw new DMLRuntimeException("UDF encoders do not support sparse tasks.");
 	}
-	
+
 	@Override
 	public void mergeAt(ColumnEncoder other) {
 		if(other instanceof ColumnEncoderUDF)

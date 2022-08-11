@@ -205,7 +205,7 @@ public class EncoderFactory {
 		else if(columnEncoder instanceof ColumnEncoderRecode)
 			return EncoderType.Recode.ordinal();
         else if(columnEncoder instanceof ColumnEncoderUDF){
-            LOG.debug("getEncoderType: ColumnEncoderUDF" + columnEncoder.toString());
+            // LOG.debug("getEncoderType: ColumnEncoderUDF" + columnEncoder.toString());
             return EncoderType.Udf.ordinal();
         }
 		throw new DMLRuntimeException("Unsupported encoder type: " + columnEncoder.getClass().getCanonicalName());
