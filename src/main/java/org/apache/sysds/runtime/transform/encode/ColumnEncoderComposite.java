@@ -350,6 +350,7 @@ public class ColumnEncoderComposite extends ColumnEncoder {
 
 	@Override
 	public void readExternal(ObjectInput in) throws IOException {
+        LOG.debug("readExternal > here we create the 'empty' column encoder objects without any specs/name");
 		int encodersSize = in.readInt();
 		_columnEncoders = new ArrayList<>();
 		for(int i = 0; i < encodersSize; i++) {

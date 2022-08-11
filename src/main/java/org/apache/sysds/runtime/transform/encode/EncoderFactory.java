@@ -69,6 +69,7 @@ public class EncoderFactory {
 
 	public static MultiColumnEncoder createEncoder(String spec, String[] colnames, ValueType[] schema, FrameBlock meta,
 		int minCol, int maxCol) {
+        LOG.debug("createEncoder. We have the spec here. So maybe also the UDF name?");
 		MultiColumnEncoder encoder;
 		int clen = schema.length;
 
@@ -130,11 +131,13 @@ public class EncoderFactory {
 				for(Integer id : dcIDs)
 					addEncoderToMap(new ColumnEncoderDummycode(id), colEncoders);
 			if(!udfIDs.isEmpty()) {
-                LOG.debug("EncoderFactory > creating UDF enocder");
 				String name = jSpec.getJSONObject("udf").getString("name");
+                LOG.debug("EncoderFactory > creating UDF enocder with name:"+name);
 				for(Integer id : udfIDs)
 					addEncoderToMap(new ColumnEncoderUDF(id, name), colEncoders);
-			}
+			}else{
+                LOG.debug("udfIDs.isEmpty() so we don't create any ColumnEncoderUDF");
+            }
 
 			// create composite decoder of all created encoders
 			for(Entry<Integer, List<ColumnEncoder>> listEntry : colEncoders.entrySet()) {

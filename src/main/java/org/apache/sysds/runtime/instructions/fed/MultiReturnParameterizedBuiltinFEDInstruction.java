@@ -314,6 +314,7 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
 			String[] colNames = fb.getColumnNames();
 
 			// create the encoder
+            LOG.debug("Right before EncoderFactory.createEncoder. Maybe pass the EC through the Contstructor?");
 			MultiColumnEncoder encoder = EncoderFactory
 				.createEncoder(_spec, colNames, fb.getNumColumns(), null, _offset, _offset + fb.getNumColumns());
 
