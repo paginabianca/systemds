@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -43,7 +43,7 @@ import org.apache.sysds.runtime.util.DependencyThreadPool;
 /**
  * Simple composite encoder that applies a list of encoders in specified order. By implementing the default encoder API
  * it can be used as a drop-in replacement for any other encoder.
- * 
+ *
  */
 // TODO assert each type of encoder can only be present once
 public class ColumnEncoderComposite extends ColumnEncoder {
@@ -147,7 +147,7 @@ public class ColumnEncoderComposite extends ColumnEncoder {
 	}
 
 	@Override
-	protected ColumnApplyTask<? extends ColumnEncoder> 
+	protected ColumnApplyTask<? extends ColumnEncoder>
 		getSparseTask(CacheBlock in, MatrixBlock out, int outputCol, int startRow, int blk) {
 		throw new NotImplementedException();
 	}
@@ -200,6 +200,7 @@ public class ColumnEncoderComposite extends ColumnEncoder {
 
 	@Override
 	public MatrixBlock apply(CacheBlock in, MatrixBlock out, int outputCol, int rowStart, int blk) {
+      LOG.debug("applying all encoders of compositeEncoder. CE.size():"+_columnEncoders.size());
 		try {
 			for(int i = 0; i < _columnEncoders.size(); i++) {
 				if(i == 0) {
@@ -207,6 +208,7 @@ public class ColumnEncoderComposite extends ColumnEncoder {
 					_columnEncoders.get(i).apply(in, out, outputCol, rowStart, blk);
 				}
 				else {
+                  LOG.debug("CEC.apply("+i+").type:"+ _columnEncoders.get(i).getTransformType());
 					_columnEncoders.get(i).apply(out, out, outputCol, rowStart, blk);
 				}
 			}

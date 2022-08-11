@@ -63,7 +63,11 @@ import org.apache.sysds.runtime.transform.encode.EncoderFactory;
 import org.apache.sysds.runtime.transform.encode.MultiColumnEncoder;
 import org.apache.sysds.runtime.util.IndexRange;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFEDInstruction {
+	private static final Log LOG = LogFactory.getLog(MultiReturnParameterizedBuiltinFEDInstruction.class.getName());
 	protected final ArrayList<CPOperand> _outputs;
 
 	private MultiReturnParameterizedBuiltinFEDInstruction(Operator op, CPOperand input1, CPOperand input2,
@@ -80,6 +84,9 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
 		String[] parts = InstructionUtils.getInstructionPartsWithValueType(str);
 		ArrayList<CPOperand> outputs = new ArrayList<>();
 		String opcode = parts[0];
+        for (int i = 0; i < 4; i++) {
+          LOG.debug("parts["+i+"]: " +parts[i]);
+        }
 
 		if(opcode.equalsIgnoreCase("transformencode")) {
 			// one input and two outputs
@@ -97,6 +104,7 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
 
 	@Override
 	public void processInstruction(ExecutionContext ec) {
+      LOG.debug("processInstruction");
 		// obtain and pin input frame
 		FrameObject fin = ec.getFrameObject(input1.getName());
 		String spec = ec.getScalarInput(input2).getStringValue();
@@ -329,12 +337,14 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
 
 		@Override
 		public FederatedResponse execute(ExecutionContext ec, Data... data) {
+          LOG.debug("executing ExecuteFrameEncoder");
 			FrameBlock fb = ((FrameObject) data[0]).acquireReadAndRelease();
 
 			// offset is applied on the Worker to shift the local encoders to their respective column
 			_encoder.applyColumnOffset();
 			// apply transformation
 			MatrixBlock mbout = _encoder.apply(fb);
+            LOG.debug("applied encodeer ExecuteFrameEncoder");
 
 			// create output matrix object
 			MatrixObject mo = ExecutionContext.createMatrixObject(mbout);

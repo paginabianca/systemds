@@ -123,6 +123,7 @@ public class FederatedWorkerHandler extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) {
+      LOG.debug("channelRead\tctx:" + msg.toString() +"\tctx"+ctx.toString());
 		ctx.writeAndFlush(createResponse(msg, ctx.channel().remoteAddress()))
 			.addListener(new CloseListener());
 	}
