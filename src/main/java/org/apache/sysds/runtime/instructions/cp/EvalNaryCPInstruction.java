@@ -90,15 +90,20 @@ public class EvalNaryCPInstruction extends BuiltinNaryCPInstruction {
 
 		//1. get the namespace and function names
 		String funcName = ec.getScalarInput(inputs[0]).getStringValue();
+      LOG.debug("funcName = ec.getScalarInput");
 		String nsName = null; //default namespace
 		if( funcName.contains(Program.KEY_DELIM) ) {
+            LOG.debug("if funcName.contains progrom.KEY_DELIM");
 			String[] parts = DMLProgram.splitFunctionKey(funcName);
+            LOG.debug("DMLProgram.splitFunctionKey");
 			funcName = parts[1];
 			nsName = parts[0];
 		}
+        LOG.debug("after IF");
 
 		// bind the inputs to avoiding being deleted after the function call
 		CPOperand[] boundInputs = Arrays.copyOfRange(inputs, 1, inputs.length);
+        LOG.debug("Arrays.cpyofRange");
 
       LOG.debug("2. copy the created output matrix");
 		//2. copy the created output matrix
