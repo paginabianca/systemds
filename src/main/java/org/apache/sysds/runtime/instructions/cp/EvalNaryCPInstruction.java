@@ -100,10 +100,12 @@ public class EvalNaryCPInstruction extends BuiltinNaryCPInstruction {
 		// bind the inputs to avoiding being deleted after the function call
 		CPOperand[] boundInputs = Arrays.copyOfRange(inputs, 1, inputs.length);
 
+      LOG.debug("2. copy the created output matrix");
 		//2. copy the created output matrix
 		MatrixObject outputMO = !output.isMatrix() ? null :
 			new MatrixObject(ec.getMatrixObject(output.getName()));
 
+      LOG.debug("3. lazy loading of dml-bodied builtin functions");
 		//3. lazy loading of dml-bodied builtin functions (incl. rename
 		// of function name to dml-bodied builtin scheme (data-type-specific)
 		DataType dt1 = boundInputs[0].getDataType().isList() ?
@@ -141,6 +143,7 @@ public class EvalNaryCPInstruction extends BuiltinNaryCPInstruction {
 			funcName = funcNameParfor;
 		}
 
+      LOG.debug("4. expland list arguments");
 		//4. expand list arguments if needed
 		CPOperand[] boundInputs2 = null;
 		LineageItem[] lineageInputs = null;
@@ -173,11 +176,13 @@ public class EvalNaryCPInstruction extends BuiltinNaryCPInstruction {
 		else //list
 			boundOutputNames.addAll(fpb.getOutputParamNames());
 
+      LOG.debug("5. call the function ");
 		//5. call the function (to unoptimized function)
 		FunctionCallCPInstruction fcpi = new FunctionCallCPInstruction(nsName, funcName,
 			false, boundInputs, lineageInputs, fpb.getInputParamNames(), boundOutputNames, "eval func");
 		fcpi.processInstruction(ec);
 
+      LOG.debug("6a convert the result matrix");
 		//6a. convert the result to matrix
 		if( output.getDataType().isMatrix() ) {
 			Data newOutput = ec.getVariable(output);
@@ -202,6 +207,7 @@ public class EvalNaryCPInstruction extends BuiltinNaryCPInstruction {
 		}
 		//6a. wrap outputs in named list (evalList)
 		else {
+          LOG.debug("6b wrap outputs in names list");
 			Data[] ldata = boundOutputNames.stream()
 				.map(n -> ec.getVariable(n)).toArray(Data[]::new);
 			String[] lnames = boundOutputNames.toArray(new String[0]);
@@ -210,6 +216,7 @@ public class EvalNaryCPInstruction extends BuiltinNaryCPInstruction {
 		}
 
 		//7. cleanup of variable expanded from list
+      LOG.debug("7 clenaup of variable expanded from list");
 		if( boundInputs2 != null ) {
 			for( CPOperand op : boundInputs2 )
 				VariableCPInstruction.processRmvarInstruction(ec, op.getName());
