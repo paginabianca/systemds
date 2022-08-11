@@ -241,7 +241,7 @@ public class MultiColumnEncoder implements Encoder {
 	}
 
 	public void build(CacheBlock in) {
-        LOG.debug(".built(k=1)");
+        LOG.debug("built(k=1)");
 		build(in, 1); // This should be MT???
 	}
 
@@ -254,6 +254,7 @@ public class MultiColumnEncoder implements Encoder {
 			buildMT(in, k);
 		}
 		else {
+          LOG.debug("building all ColumnEncoderComposite of this MultiColumnEncoder");
 			for(ColumnEncoderComposite columnEncoder : _columnEncoders) {
 				columnEncoder.build(in);
 				columnEncoder.updateAllDCEncoders();
