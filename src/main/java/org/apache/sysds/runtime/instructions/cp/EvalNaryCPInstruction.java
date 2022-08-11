@@ -90,7 +90,7 @@ public class EvalNaryCPInstruction extends BuiltinNaryCPInstruction {
 
 		//1. get the namespace and function names
 		String funcName = ec.getScalarInput(inputs[0]).getStringValue();
-      LOG.debug("funcName = ec.getScalarInput");
+      LOG.debug("funcName: "+funcName);
 		String nsName = null; //default namespace
 		if( funcName.contains(Program.KEY_DELIM) ) {
             LOG.debug("if funcName.contains progrom.KEY_DELIM");
