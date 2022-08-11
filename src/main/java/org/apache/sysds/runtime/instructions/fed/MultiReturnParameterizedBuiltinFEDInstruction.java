@@ -81,6 +81,7 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
 	}
 
 	public static MultiReturnParameterizedBuiltinFEDInstruction parseInstruction(String str) {
+        LOG.debug("parseInstruction");
 		String[] parts = InstructionUtils.getInstructionPartsWithValueType(str);
 		ArrayList<CPOperand> outputs = new ArrayList<>();
 		String opcode = parts[0];
@@ -104,10 +105,11 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
 
 	@Override
 	public void processInstruction(ExecutionContext ec) {
-      LOG.debug("processInstruction");
 		// obtain and pin input frame
 		FrameObject fin = ec.getFrameObject(input1.getName());
 		String spec = ec.getScalarInput(input2).getStringValue();
+
+        LOG.debug("processInstruction fin:"+input1.getName()+"\tspec:"+spec);
 
 		String[] colNames = new String[(int) fin.getNumColumns()];
 		Arrays.fill(colNames, "");
@@ -118,10 +120,12 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
 
 		boolean containsEquiWidthEncoder = !fin.isFederated(FTypes.FType.ROW) && spec.toLowerCase().contains("equi-height");
 		if(containsEquiWidthEncoder) {
+            LOG.debug("containsEquiWidthEncoder");
 			EncoderColnames ret = createGlobalEncoderWithEquiHeight(ec, fin, spec);
 			globalEncoder = ret._encoder;
 			colNames = ret._colnames;
 		} else {
+            LOG.debug("noEquiWidthEncoder");
 			// first create encoders at the federated workers, then collect them and aggregate them to a single large
 			// encoder
 			MultiColumnEncoder finalGlobalEncoder = globalEncoder;
@@ -131,6 +135,7 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
 
 				// create an encoder with the given spec. The columnOffset (which is 0 based) has to be used to
 				// tell the federated worker how much the indexes in the spec have to be offset.
+                LOG.debug("about to CreateFrameEncoder. data.getVarID():"+data.getVarID()+"\tspc");
 				Future<FederatedResponse> responseFuture = data.executeFederatedOperation(new FederatedRequest(
 					RequestType.EXEC_UDF,
 					-1,
@@ -290,6 +295,7 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
 	}
 
 	public static class CreateFrameEncoder extends FederatedUDF {
+        private static final Log LOG = LogFactory.getLog(CreateFrameEncoder.class.getName());
 		private static final long serialVersionUID = 2376756757742169692L;
 		private final String _spec;
 		private final int _offset;
@@ -302,6 +308,7 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
 
 		@Override
 		public FederatedResponse execute(ExecutionContext ec, Data... data) {
+            LOG.debug("executing...");
 			FrameObject fo = (FrameObject) data[0];
 			FrameBlock fb = fo.acquireRead();
 			String[] colNames = fb.getColumnNames();

@@ -130,6 +130,7 @@ public class EncoderFactory {
 				for(Integer id : dcIDs)
 					addEncoderToMap(new ColumnEncoderDummycode(id), colEncoders);
 			if(!udfIDs.isEmpty()) {
+                LOG.debug("EncoderFactory > creating UDF enocder");
 				String name = jSpec.getJSONObject("udf").getString("name");
 				for(Integer id : udfIDs)
 					addEncoderToMap(new ColumnEncoderUDF(id, name), colEncoders);
@@ -225,7 +226,7 @@ public class EncoderFactory {
 			case Recode:
 				return new ColumnEncoderRecode();
             case Udf:
-                return new ColumnEncoderUDF("scale");
+                return new ColumnEncoderUDF("scale"); // okay now do this but with regards to the execution context
 			default:
 				throw new DMLRuntimeException("Unsupported encoder type: " + etype);
 		}
