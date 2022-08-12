@@ -132,7 +132,7 @@ public class EncoderFactory {
 					addEncoderToMap(new ColumnEncoderDummycode(id), colEncoders);
 			if(!udfIDs.isEmpty()) {
 				String name = jSpec.getJSONObject("udf").getString("name");
-                LOG.debug("EncoderFactory > creating UDF enocder with name:"+name);
+                LOG.debug("EncoderFactory > creating "+udfIDs.size()+" UDF enocder/s with name:"+name);
 				for(Integer id : udfIDs)
 					addEncoderToMap(new ColumnEncoderUDF(id, name), colEncoders);
 			}else{

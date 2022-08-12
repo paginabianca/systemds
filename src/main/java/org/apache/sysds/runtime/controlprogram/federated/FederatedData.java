@@ -207,7 +207,7 @@ public class FederatedData {
 			handler.setPromise(promise);
             LOG.debug("writeandflushchannel");
 			f.channel().writeAndFlush(request);
-
+            LOG.debug("writeAndFlush done");
 			return handler.getProm();
 		}
 		catch(Exception e) {
