@@ -191,6 +191,7 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
 	}
 
 	public EncoderColnames createGlobalEncoderWithEquiHeight(ExecutionContext ec, FrameObject fin, String spec) {
+        LOG.debug("createGlobalEncoderWithEquiHeight");
 		// the encoder in which the complete encoding information will be aggregated
 		MultiColumnEncoder globalEncoder = new MultiColumnEncoder(new ArrayList<>());
 		String[] colNames = new String[(int) fin.getNumColumns()];
@@ -265,6 +266,7 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
 
 	public static void encodeFederatedFrames(FederationMap fedMapping, MultiColumnEncoder globalencoder,
 		MatrixObject transformedMat) {
+        LOG.debug("encodeFederatedFrames");
 		long varID = FederationUtils.getNextFedDataID();
 		FederationMap transformedFedMapping = fedMapping.mapParallel(varID, (range, data) -> {
 			// copy because we reuse it
@@ -322,7 +324,9 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
 				.createEncoder(_spec, colNames, fb.getNumColumns(), null, _offset, _offset + fb.getNumColumns());
 
 			// build necessary structures for encoding
+            // NOTE: in this build of the MultiColumnEncoder there are a bunch of
 			encoder.build(fb); // FIXME skip equi-height sorting
+            LOG.debug("Building MultiColumnEncoder done");
 			fo.release();
 
 			// create federated response

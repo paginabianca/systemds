@@ -261,8 +261,10 @@ public class MultiColumnEncoder implements Encoder {
 				columnEncoder.updateAllDCEncoders();
 			}
 		}
-		if(hasLegacyEncoder())
+		if(hasLegacyEncoder()){
+            LOG.debug("build.hasLegacyEncoder");
 			legacyBuild((FrameBlock) in);
+        }
 	}
 
 	public void build(CacheBlock in, int k, Map<Integer, double[]> equiHeightBinMaxs) {
