@@ -229,7 +229,7 @@ public class EncoderFactory {
 			case Recode:
 				return new ColumnEncoderRecode();
             case Udf:
-                return new ColumnEncoderUDF("scale"); // okay now do this but with regards to the execution context
+                return new ColumnEncoderUDF(); // okay now do this but with regards to the execution context
 			default:
 				throw new DMLRuntimeException("Unsupported encoder type: " + etype);
 		}

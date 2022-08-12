@@ -31,27 +31,27 @@ import org.apache.sysds.runtime.controlprogram.context.ExecutionContextFactory;
 public class ExecutionContextMap {
 	private ExecutionContext _main;
 	private final Map<Long, ExecutionContext> _parEc;
-	
+
 	public ExecutionContextMap() {
 		_main = createExecutionContext();
 		_parEc = new ConcurrentHashMap<>();
 	}
-	
+
 	public synchronized ExecutionContext get(long tid) {
 		//return main execution context
 		if( tid <= 0 )
 			return _main;
-		
+
 		//atomic probe, create if necessary, and return
 		return _parEc.computeIfAbsent(tid,
 			k -> deriveExecutionContext(_main));
 	}
-	
+
 	public synchronized void clear() {
 		//handle main symbol table (w/ tmp list for concurrent modification)
 		for( String varName : new ArrayList<>(_main.getVariables().keySet()) )
 			_main.cleanupDataObject(_main.removeVariable(varName));
-		
+
 		//handle parfor execution contexts
 		for( ExecutionContext ec : _parEc.values() )
 			for( String varName : ec.getVariables().keySet() )
@@ -62,18 +62,18 @@ public class ExecutionContextMap {
 	public synchronized void convertToSparkCtx() {
 		// set hybrid mode for global consistency
 		DMLScript.setGlobalExecMode(ExecMode.HYBRID);
-		
+
 		//convert existing execution contexts
 		_main = deriveExecutionContext(_main);
 		_parEc.replaceAll((k,v) -> deriveExecutionContext(v));
-		
+
 	}
 	private static ExecutionContext createExecutionContext() {
 		ExecutionContext ec = ExecutionContextFactory.createContext();
 		ec.setAutoCreateVars(true); //w/o createvar inst
 		return ec;
 	}
-	
+
 	private static ExecutionContext deriveExecutionContext(ExecutionContext ec) {
 		//derive execution context from main to make shared variables available
 		//but allow normal instruction processing and removal if necessary

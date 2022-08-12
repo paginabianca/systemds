@@ -19,8 +19,13 @@
 
 package org.apache.sysds.runtime.transform.encode;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.sysds.api.DMLScript;
 import org.apache.sysds.common.Types.DataType;
 import org.apache.sysds.common.Types.ValueType;
@@ -40,16 +45,13 @@ import org.apache.sysds.runtime.matrix.data.FrameBlock;
 import org.apache.sysds.runtime.matrix.data.MatrixBlock;
 import org.apache.sysds.runtime.util.DependencyTask;
 import org.apache.sysds.utils.stats.TransformStatistics;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 public class ColumnEncoderUDF extends ColumnEncoder {
 	private static final Log LOG = LogFactory.getLog(ColumnEncoderUDF.class.getName());
 
 	//TODO pass execution context through encoder factory for arbitrary functions not just builtin
 	//TODO integration into IPA to ensure existence of unoptimized functions
 
-	private final String _fName;
+	private String _fName;
 	public int _domainSize = 1;
 
 	protected ColumnEncoderUDF(int ptCols, String name) {
@@ -176,4 +178,21 @@ public class ColumnEncoderUDF extends ColumnEncoder {
 	protected double[] getCodeCol(CacheBlock in, int startInd, int blkSize) {
 		throw new DMLRuntimeException("UDF encoders only support full column access.");
 	}
+
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+      LOG.debug("Writing ColumnEncoderUTF to create");
+      super.writeExternal(out);
+      out.writeInt(_domainSize);
+      out.writeUTF(_fName);
+    }
+
+    @Override
+    public void readExternal(ObjectInput in) throws IOException {
+      LOG.debug("reading ColumnEncoderUTF");
+      super.readExternal(in);
+      _domainSize = in.readInt();
+      _fName = in.readUTF();
+      LOG.debug("set _fName: "+_fName);
+    }
 }
