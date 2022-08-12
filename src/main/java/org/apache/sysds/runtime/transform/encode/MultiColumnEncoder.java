@@ -926,7 +926,7 @@ public class MultiColumnEncoder implements Encoder {
 	}
 
 	public void mergeAt(Encoder other, int columnOffset, int row) {
-      LOG.debug("mergeAt:"+other.toString()+"\twith:"+this.toString());
+      // LOG.debug("mergeAt:"+other.toString()+"\twith:"+this.toString());
 		if(other instanceof MultiColumnEncoder) {
 			for(ColumnEncoder encoder : ((MultiColumnEncoder) other)._columnEncoders) {
 				addEncoder(encoder, columnOffset);
