@@ -127,7 +127,7 @@ public class FederatedData {
 
 	/**
 	 * Make a copy of the <code>FederatedData</code> metadata, but use another varID (refer to another object on worker)
-	 * 
+	 *
 	 * @param varID the varID of the variable we refer to
 	 * @return new <code>FederatedData</code> with different varID set
 	 */
@@ -181,20 +181,31 @@ public class FederatedData {
 	 */
 	public synchronized static Future<FederatedResponse> executeFederatedOperation(InetSocketAddress address,
 		FederatedRequest... request) {
+      LOG.debug("executingFederatedOperation() request: "+request.toString());
 		try {
+            LOG.debug("new Bootstrap");
 			final Bootstrap b = new Bootstrap();
-			if(workerGroup == null)
+			if(workerGroup == null){
+              LOG.debug("workerGroup == null");
 				createWorkGroup();
+            }
+            LOG.debug("workerGroup");
 			b.group(workerGroup);
+            LOG.debug("b.channel");
 			b.channel(NioSocketChannel.class);
+            LOG.debug("new DataRequestHandler");
 			final DataRequestHandler handler = new DataRequestHandler();
 			// Client Netty
 
+            LOG.debug("createChannel");
 			b.handler(createChannel(address, handler));
 
+            LOG.debug("b.connect");
 			ChannelFuture f = b.connect(address).sync();
+            LOG.debug("f.channel.eventloop.newpromise");
 			Promise<FederatedResponse> promise = f.channel().eventLoop().newPromise();
 			handler.setPromise(promise);
+            LOG.debug("writeandflushchannel");
 			f.channel().writeAndFlush(request);
 
 			return handler.getProm();
