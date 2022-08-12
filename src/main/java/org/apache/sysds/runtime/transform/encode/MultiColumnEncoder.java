@@ -256,6 +256,7 @@ public class MultiColumnEncoder implements Encoder {
 		else {
           LOG.debug("building all ColumnEncoderComposite of this MultiColumnEncoder");
 			for(ColumnEncoderComposite columnEncoder : _columnEncoders) {
+                LOG.debug("build for CEC:"+columnEncoder.getTransformType()+" colID:"+columnEncoder._colID);
 				columnEncoder.build(in);
 				columnEncoder.updateAllDCEncoders();
 			}
