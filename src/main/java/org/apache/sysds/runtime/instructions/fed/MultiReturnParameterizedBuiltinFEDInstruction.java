@@ -38,6 +38,7 @@ import org.apache.sysds.common.Types.DataType;
 import org.apache.sysds.common.Types.ValueType;
 import org.apache.sysds.conf.ConfigurationManager;
 import org.apache.sysds.conf.DMLConfig;
+import org.apache.sysds.hops.OptimizerUtils;
 import org.apache.sysds.hops.fedplanner.FTypes;
 import org.apache.sysds.lops.PickByCount;
 import org.apache.sysds.runtime.DMLRuntimeException;
@@ -329,11 +330,8 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
 			// build necessary structures for encoding
             // NOTE: in this build of the MultiColumnEncoder there are a bunch of
             Timing t1 = new Timing(true);
-            if (ConfigurationManager.getDMLConfig().getBooleanValue(DMLConfig.FEDERATED_PAR_TRANSFORMENCODE)){
-              encoder.build(fb, InfrastructureAnalyzer.getLocalParallelism() ); // FIXME skip equi-height sorting
-            }else{
-              encoder.build(fb,1); // FIXME skip equi-height sorting
-            }
+            // encoder.build(fb, OptimizerUtils.getTransformNumThreads() ); // FIXME skip equi-height sorting
+            encoder.build(fb, InfrastructureAnalyzer.getLocalParallelism() ); // FIXME skip equi-height sorting
             double time = t1.stop();
             LOG.info("Building MultiColumnEncoder done. Took: "+ time +"s");
 			fo.release();
