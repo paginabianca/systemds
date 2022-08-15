@@ -246,6 +246,7 @@ public class MultiColumnEncoder implements Encoder {
 	}
 
 	public void build(CacheBlock in, int k) {
+        LOG.debug("build with "+k+ " cores...");
 		if(hasLegacyEncoder() && !(in instanceof FrameBlock))
 			throw new DMLRuntimeException("LegacyEncoders do not support non FrameBlock Inputs");
 		if(!_partitionDone) //happens if this method is directly called

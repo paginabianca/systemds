@@ -36,6 +36,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.sysds.common.Types;
 import org.apache.sysds.common.Types.DataType;
 import org.apache.sysds.common.Types.ValueType;
+import org.apache.sysds.conf.ConfigurationManager;
+import org.apache.sysds.conf.DMLConfig;
 import org.apache.sysds.hops.fedplanner.FTypes;
 import org.apache.sysds.lops.PickByCount;
 import org.apache.sysds.runtime.DMLRuntimeException;
@@ -49,6 +51,7 @@ import org.apache.sysds.runtime.controlprogram.federated.FederatedResponse.Respo
 import org.apache.sysds.runtime.controlprogram.federated.FederatedUDF;
 import org.apache.sysds.runtime.controlprogram.federated.FederationMap;
 import org.apache.sysds.runtime.controlprogram.federated.FederationUtils;
+import org.apache.sysds.runtime.controlprogram.parfor.stat.InfrastructureAnalyzer;
 import org.apache.sysds.runtime.controlprogram.parfor.stat.Timing;
 import org.apache.sysds.runtime.instructions.InstructionUtils;
 import org.apache.sysds.runtime.instructions.cp.CPOperand;
@@ -326,7 +329,11 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
 			// build necessary structures for encoding
             // NOTE: in this build of the MultiColumnEncoder there are a bunch of
             Timing t1 = new Timing(true);
-			encoder.build(fb); // FIXME skip equi-height sorting
+            if (ConfigurationManager.getDMLConfig().getBooleanValue(DMLConfig.FEDERATED_PAR_TRANSFORMENCODE)){
+              encoder.build(fb, InfrastructureAnalyzer.getLocalParallelism() ); // FIXME skip equi-height sorting
+            }else{
+              encoder.build(fb,1); // FIXME skip equi-height sorting
+            }
             double time = t1.stop();
             LOG.info("Building MultiColumnEncoder done. Took: "+ time +"s");
 			fo.release();
