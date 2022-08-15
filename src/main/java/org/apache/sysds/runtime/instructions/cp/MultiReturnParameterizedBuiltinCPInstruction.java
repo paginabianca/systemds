@@ -98,12 +98,12 @@ public class MultiReturnParameterizedBuiltinCPInstruction extends ComputationCPI
         Timing timer = new Timing(true);
 		MatrixBlock data = encoder.encode(fin, OptimizerUtils.getTransformNumThreads()); // build and apply
         double time = timer.stop();
-        LOG.debug("encoded fin with " + OptimizerUtils.getTransformNumThreads()+ " thread and took: "+ time +"ms");
+        LOG.info("encoded fin with " + OptimizerUtils.getTransformNumThreads()+ " thread and took: "+ time +"ms");
         timer.start();
 		FrameBlock meta = encoder.getMetaData(new FrameBlock(fin.getNumColumns(), ValueType.STRING),
 				OptimizerUtils.getTransformNumThreads());
         time = timer.stop();
-        LOG.debug("encoder.MetaData with " + OptimizerUtils.getTransformNumThreads() + "threads and took:" + time+ "ms");
+        LOG.info("encoder.MetaData with " + OptimizerUtils.getTransformNumThreads() + "threads and took:" + time+ "ms");
 		meta.setColumnNames(colnames);
 
 		// release input and outputs
