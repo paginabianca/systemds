@@ -37,6 +37,7 @@ import org.apache.sysds.runtime.controlprogram.caching.MatrixObject;
 import org.apache.sysds.runtime.controlprogram.context.ExecutionContext;
 import org.apache.sysds.runtime.controlprogram.context.ExecutionContextFactory;
 import org.apache.sysds.runtime.controlprogram.paramserv.ParamservUtils;
+import org.apache.sysds.runtime.controlprogram.parfor.stat.Timing;
 import org.apache.sysds.runtime.instructions.cp.CPOperand;
 import org.apache.sysds.runtime.instructions.cp.Data;
 import org.apache.sysds.runtime.instructions.cp.EvalNaryCPInstruction;
@@ -84,8 +85,10 @@ public class ColumnEncoderUDF extends ColumnEncoder {
 
 	@Override
 	public void applyDense(CacheBlock in, MatrixBlock out, int outputCol, int rowStart, int blk) {
+
       LOG.debug("applyDense");
 		long t0 = DMLScript.STATISTICS ? System.nanoTime() : 0;
+        Timing timer_total = new Timing(true);
 		//create execution context and input
 		ExecutionContext ec = ExecutionContextFactory.createContext(new Program(new DMLProgram()));
 		//MatrixBlock col = out.slice(0, in.getNumRows()-1, _colID-1, _colID-1, new MatrixBlock());
@@ -101,8 +104,10 @@ public class ColumnEncoderUDF extends ColumnEncoder {
 				new CPOperand(_fName, ValueType.STRING, DataType.SCALAR, true),
 				new CPOperand("I", ValueType.UNKNOWN, DataType.LIST)});
         LOG.debug("called UDF");
+        Timing t1 = new Timing(true);
 		fun.processInstruction(ec);
-        LOG.debug("postProcessing");
+        double time = t1.stop();
+        LOG.info("postProcessing took: "+ time+"\tms");
 
 		//obtain result and in-place write back
 		MatrixBlock ret = ((MatrixObject)ec.getCacheableData("O")).acquireReadAndRelease();
@@ -113,6 +118,8 @@ public class ColumnEncoderUDF extends ColumnEncoder {
 
 		if (DMLScript.STATISTICS)
 			TransformStatistics.incUDFApplyTime(System.nanoTime() - t0);
+        time = timer_total.stop();
+        LOG.info("applyDense took "+time+"\tms'");
 	}
 
 	public void updateDomainSizes(List<ColumnEncoder> columnEncoders) {
