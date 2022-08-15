@@ -31,6 +31,8 @@ import java.util.zip.Checksum;
 
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.sysds.common.Types;
 import org.apache.sysds.common.Types.DataType;
 import org.apache.sysds.common.Types.ValueType;
@@ -47,6 +49,7 @@ import org.apache.sysds.runtime.controlprogram.federated.FederatedResponse.Respo
 import org.apache.sysds.runtime.controlprogram.federated.FederatedUDF;
 import org.apache.sysds.runtime.controlprogram.federated.FederationMap;
 import org.apache.sysds.runtime.controlprogram.federated.FederationUtils;
+import org.apache.sysds.runtime.controlprogram.parfor.stat.Timing;
 import org.apache.sysds.runtime.instructions.InstructionUtils;
 import org.apache.sysds.runtime.instructions.cp.CPOperand;
 import org.apache.sysds.runtime.instructions.cp.Data;
@@ -62,9 +65,6 @@ import org.apache.sysds.runtime.transform.encode.Encoder;
 import org.apache.sysds.runtime.transform.encode.EncoderFactory;
 import org.apache.sysds.runtime.transform.encode.MultiColumnEncoder;
 import org.apache.sysds.runtime.util.IndexRange;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFEDInstruction {
 	private static final Log LOG = LogFactory.getLog(MultiReturnParameterizedBuiltinFEDInstruction.class.getName());
@@ -325,8 +325,10 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
 
 			// build necessary structures for encoding
             // NOTE: in this build of the MultiColumnEncoder there are a bunch of
+            Timing t1 = new Timing(true);
 			encoder.build(fb); // FIXME skip equi-height sorting
-            LOG.debug("Building MultiColumnEncoder done");
+            double time = t1.stop();
+            LOG.debug("Building MultiColumnEncoder done. Took: "+ time);
 			fo.release();
 
 			// create federated response
