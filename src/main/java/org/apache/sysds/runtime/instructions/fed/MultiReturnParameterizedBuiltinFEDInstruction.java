@@ -330,10 +330,16 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
 			// build necessary structures for encoding
             // NOTE: in this build of the MultiColumnEncoder there are a bunch of
             Timing t1 = new Timing(true);
-            encoder.build(fb, OptimizerUtils.getTransformNumThreads() ); // FIXME skip equi-height sorting
+            if(ConfigurationManager.getDMLConfig().getBooleanValue(DMLConfig.FEDERATED_PAR_TRANSFORMENCODE)){
+              LOG.info("building with " +OptimizerUtils.getTransformNumThreads() +" threads");
+              encoder.build(fb, OptimizerUtils.getTransformNumThreads() ); // FIXME skip equi-height sorting
+            } else{
+              LOG.info("building with 1 threads");
+              encoder.build(fb);
+            }
             // encoder.build(fb, InfrastructureAnalyzer.getLocalParallelism() ); // FIXME skip equi-height sorting
             double time = t1.stop();
-            LOG.info("Build with:"+ OptimizerUtils.getTransformNumThreads() + " threads took: "+ time +"ms");
+            LOG.info("Build took: "+ time +"ms");
 			fo.release();
 
 			// create federated response
