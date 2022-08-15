@@ -23,11 +23,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.sysds.common.Types.DataType;
 import org.apache.sysds.common.Types.ValueType;
 import org.apache.sysds.hops.OptimizerUtils;
 import org.apache.sysds.runtime.DMLRuntimeException;
 import org.apache.sysds.runtime.controlprogram.context.ExecutionContext;
+import org.apache.sysds.runtime.controlprogram.parfor.stat.Timing;
 import org.apache.sysds.runtime.instructions.InstructionUtils;
 import org.apache.sysds.runtime.lineage.LineageItem;
 import org.apache.sysds.runtime.lineage.LineageItemUtils;
@@ -36,9 +39,6 @@ import org.apache.sysds.runtime.matrix.data.MatrixBlock;
 import org.apache.sysds.runtime.matrix.operators.Operator;
 import org.apache.sysds.runtime.transform.encode.EncoderFactory;
 import org.apache.sysds.runtime.transform.encode.MultiColumnEncoder;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 public class MultiReturnParameterizedBuiltinCPInstruction extends ComputationCPInstruction {
 
@@ -95,10 +95,15 @@ public class MultiReturnParameterizedBuiltinCPInstruction extends ComputationCPI
 		MultiColumnEncoder encoder = EncoderFactory.createEncoder(spec, colnames, fin.getNumColumns(), null);
         LOG.debug("createdEncoder");
 		// TODO: Assign #threads in compiler and pass via the instruction string
+        Timing timer = new Timing(true);
 		MatrixBlock data = encoder.encode(fin, OptimizerUtils.getTransformNumThreads()); // build and apply
-        LOG.debug("encodedColumns");
+        double time = timer.stop();
+        LOG.debug("encoded fin with " + OptimizerUtils.getTransformNumThreads()+ " thread and took: "+ time +"ms");
+        timer.start();
 		FrameBlock meta = encoder.getMetaData(new FrameBlock(fin.getNumColumns(), ValueType.STRING),
 				OptimizerUtils.getTransformNumThreads());
+        time = timer.stop();
+        LOG.debug("encoder.MetaData with " + OptimizerUtils.getTransformNumThreads() + "threads and took:" + time+ "ms");
 		meta.setColumnNames(colnames);
 
 		// release input and outputs
