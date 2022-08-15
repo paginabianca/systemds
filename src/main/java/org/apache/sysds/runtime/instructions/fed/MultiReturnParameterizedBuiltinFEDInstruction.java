@@ -328,7 +328,7 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
             Timing t1 = new Timing(true);
 			encoder.build(fb); // FIXME skip equi-height sorting
             double time = t1.stop();
-            LOG.debug("Building MultiColumnEncoder done. Took: "+ time);
+            LOG.info("Building MultiColumnEncoder done. Took: "+ time +"s");
 			fo.release();
 
 			// create federated response
