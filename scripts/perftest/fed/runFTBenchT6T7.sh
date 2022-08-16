@@ -41,7 +41,7 @@ trap 'err_report $LINENO' ERR
 # Set Properties
 export SYSDS_QUIET=1
 export LOG4JPROP=${BASEPATH}'/../conf/log4j.properties'
-export SYSTEMDS_STANDALONE_OPTS="-Xmx200g -Xms80g -Xmn50g"
+export SYSTEMDS_STANDALONE_OPTS="-Xmx120g -Xms80g -Xmn50g"
 CONFIG_FILE="${HOME}systemds/conf/no.opt.xml"
 
 # Start the Federated Workers on Localhost
@@ -61,7 +61,7 @@ do
 
   # splitting and making the code federated...
   ${CMD} -f "${BASEPATH}"/FTBench/T6T7.dml \
-    --config "${CONFIG_FILE}" \
+    --config "${BASEPATH}"/../conf/SystemDS-config.xml \
     --nvargs \
       data="${TEMPDIR}"/"${DATA_BASENAME}"."${d}".fed\
       target="${TEMPDIR}"/"${DATA_BASENAME}"."${d}".result \
