@@ -287,6 +287,7 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
 	public static void encodeFederatedFrames(FederationMap fedMapping, MultiColumnEncoder globalencoder,
 		MatrixObject transformedMat) {
         LOG.debug("encodeFederatedFrames");
+        Timing timer = new Timing(true);
 		long varID = FederationUtils.getNextFedDataID();
 		FederationMap transformedFedMapping = fedMapping.mapParallel(varID, (range, data) -> {
 			// copy because we reuse it
@@ -312,11 +313,14 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
 			}
 			return null;
 		});
+        double time = timer.stop();
+        LOG.debug("encodeFederatedFrames parallel took:"+time+" ms");
 
 		// construct a federated matrix with the encoded data
 		transformedMat.getDataCharacteristics().setDimension(transformedFedMapping.getMaxIndexInRange(0),
 			transformedFedMapping.getMaxIndexInRange(1));
 		transformedMat.setFedMapping(transformedFedMapping);
+        LOG.debug("encodeFederatedFrames done");
 	}
 
 	public static class CreateFrameEncoder extends FederatedUDF {
