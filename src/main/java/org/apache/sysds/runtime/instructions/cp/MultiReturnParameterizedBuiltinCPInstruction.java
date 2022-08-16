@@ -64,7 +64,7 @@ public class MultiReturnParameterizedBuiltinCPInstruction extends ComputationCPI
 	}
 
 	public static MultiReturnParameterizedBuiltinCPInstruction parseInstruction(String str) {
-        LOG.debug("parseInstruction");
+        LOG.debug("transformencode local");
 		String[] parts = InstructionUtils.getInstructionPartsWithValueType(str);
 		ArrayList<CPOperand> outputs = new ArrayList<>();
 		String opcode = parts[0];

@@ -38,11 +38,12 @@ trap 'err_report $LINENO' ERR
 
 # Set Properties
 export SYSDS_QUIET=1
-export LOG4JPROP=${BASEPATH}'/../conf/log4j-off.properties'
+export LOG4JPROP=${BASEPATH}'/../conf/log4j.properties'
 export SYSTEMDS_STANDALONE_OPTS="-Xmx120g -Xms80g -Xmn50g"
+export CONFIG_FILE="${HOME}systemds/conf/no.opt.xml"
 
 # Create Temp Directory
-if [ ! -d "${TEMPDIR}" ]; then
+if [ ! -d ${TEMPDIR} ]; then
   mkdir -p "${TEMPDIR}"
 fi
 
@@ -50,7 +51,7 @@ fi
 "${BASEPATH}"/utils/startFedWorkers.sh systemds "${TEMPDIR}" "${NUMFED}" "localhost";
 
 
-for d in "T2_spec1" "T2_spec2"
+for d in "T2_spec2"
 do
   echo "Preprocessing"
   ${CMD} -f "${BASEPATH}"/FTBench/T2.preprocess.dml \
@@ -75,7 +76,7 @@ do
     --config "${BASEPATH}"/../conf/SystemDS-config.xml \
     --nvargs \
       data="${TEMPDIR}"/"${DATA_BASENAME}".${d}.fed \
-      target="${TEMPDIR}"/"${DATA_BASENAME}".${d}.result \
+      target="${TEMPDIR}"/"$(basename ${CONFIG_FILE})".${d}.result \
       spec_file="${BASEPATH}"/data/${d}.json \
       fmt="csv"
 done
