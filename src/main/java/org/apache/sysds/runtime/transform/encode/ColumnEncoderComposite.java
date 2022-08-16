@@ -337,8 +337,8 @@ public class ColumnEncoderComposite extends ColumnEncoder {
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-        LOG.debug("write external. I guess here we send the ColumnEncoderComposite to the federed worker?");
-        LOG.debug("this.toString:"+this.toString());
+        // LOG.debug("write external. I guess here we send the ColumnEncoderComposite to the federed worker?");
+        // LOG.debug("this.toString:"+this.toString());
 		out.writeInt(_columnEncoders.size());
 		for(ColumnEncoder columnEncoder : _columnEncoders) {
 			out.writeInt(columnEncoder._colID);
@@ -353,7 +353,7 @@ public class ColumnEncoderComposite extends ColumnEncoder {
 
 	@Override
 	public void readExternal(ObjectInput in) throws IOException {
-        LOG.debug("readExternal > here we create the 'empty' column encoder objects without any specs/name");
+        // LOG.debug("readExternal > here we create the 'empty' column encoder objects without any specs/name");
         // LOG.debug("in: "+in.toString()+"\tclass: "+in.getClass().toString());
 		int encodersSize = in.readInt();
         // LOG.debug("encodersSize: "+encodersSize);

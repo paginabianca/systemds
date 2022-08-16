@@ -188,7 +188,7 @@ public class ColumnEncoderUDF extends ColumnEncoder {
 
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
-      LOG.debug("Writing ColumnEncoderUTF to create");
+      // LOG.debug("Writing ColumnEncoderUTF to create");
       super.writeExternal(out);
       out.writeInt(_domainSize);
       out.writeUTF(_fName);
@@ -196,10 +196,10 @@ public class ColumnEncoderUDF extends ColumnEncoder {
 
     @Override
     public void readExternal(ObjectInput in) throws IOException {
-      LOG.debug("reading ColumnEncoderUTF");
+      // LOG.debug("reading ColumnEncoderUTF");
       super.readExternal(in);
       _domainSize = in.readInt();
       _fName = in.readUTF();
-      LOG.debug("set _fName: "+_fName);
+      // LOG.debug("set _fName: "+_fName);
     }
 }
