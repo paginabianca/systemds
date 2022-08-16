@@ -44,7 +44,7 @@ CONFIG_FILE="${HOME}systemds/conf/no.opt.xml"
 
 # Create Temp Directory
 if [ ! -d ${TEMPDIR} ]; then
-  mkdir -p "${TEMPDIR}"
+  mkdir -p ${TEMPDIR}
 fi
 
 # Start the Federated Workers on Localhost

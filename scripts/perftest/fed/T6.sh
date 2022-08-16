@@ -20,14 +20,16 @@
 #
 #-------------------------------------------------------------
 
-# This script runs the federated FTBench T6 and T7 (Crypto data)
+# This branch is abused as cloud-save.
+
+# quickly run the T2 FTBench on workers that already have been
+# populated with the federated data.
 
 # Read Parameters
 FILENAME=$0
 CMD=${1:-"systemds"}
-DATADIR=${2:-"temp/crypto"}
-TEMPDIR=${3:-"temp/crypto"}
-NUMFED=${4:-2}
+DATADIR=${2:-"~/datasets"}
+TEMPDIR=${3:-"~/datasets/temp/T6"}
 DATA=${5:-"${DATADIR}/crypto.csv"}
 DATA_BASENAME=$(basename "${DATA}")
 BASEPATH=$(dirname "$0")
@@ -41,33 +43,21 @@ trap 'err_report $LINENO' ERR
 # Set Properties
 export SYSDS_QUIET=1
 export LOG4JPROP=${BASEPATH}'/../conf/log4j.properties'
-export SYSTEMDS_STANDALONE_OPTS="-Xmx200g -Xms80g -Xmn50g"
-CONFIG_FILE="${HOME}systemds/conf/no.opt.xml"
+export SYSTEMDS_STANDALONE_OPTS="-Xmx120g -Xms80g -Xmn50g"
 
-# Start the Federated Workers on Localhost
-"${BASEPATH}"/utils/startFedWorkers.sh systemds "$TEMPDIR" "$NUMFED" "localhost";
+# Create Temp Directory
+if [ ! -d ${TEMPDIR} ]; then
+  mkdir -p ${TEMPDIR}
+fi
 
-for d in "T6_spec" "T7_spec"
+for d in "T6_spec"
 do
-  echo "Split And Make Federated"
-  ${CMD} -f "${BASEPATH}"/data/splitAndMakeFederatedFrame.dml \
+  echo "FTBench"
+  ${CMD} -f "${BASEPATH}"/FTBench/T6.dml \
     --config "${BASEPATH}"/../conf/SystemDS-config.xml \
     --nvargs \
-      data="${DATA}" \
-      nSplit="${NUMFED}" \
-      target="${TEMPDIR}"/"${DATA_BASENAME}"."${d}".fed\
-      hosts="${TEMPDIR}"/workers/hosts \
-      fmt="csv"
-
-  # splitting and making the code federated...
-  ${CMD} -f "${BASEPATH}"/FTBench/T6T7.dml \
-    --config "${CONFIG_FILE}" \
-    --nvargs \
-      data="${TEMPDIR}"/"${DATA_BASENAME}"."${d}".fed\
-      target="${TEMPDIR}"/"${DATA_BASENAME}"."${d}".result \
-      spec_file="${BASEPATH}"/data/"${d}".json \
+      data="${TEMPDIR}"/"${DATA_BASENAME}".${d}.fed \
+      target="${TEMPDIR}"/"${DATA_BASENAME}".${d}.result \
+      spec_file="${BASEPATH}"/data/${d}.json \
       fmt="csv"
 done
-
-# Kill the Federated Workers
-"${BASEPATH}"/utils/killFedWorkers.sh "$TEMPDIR";

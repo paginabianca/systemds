@@ -46,8 +46,8 @@ export LOG4JPROP=${BASEPATH}'/../conf/log4j.properties'
 export SYSTEMDS_STANDALONE_OPTS="-Xmx120g -Xms80g -Xmn50g"
 
 # Create Temp Directory
-if [ ! -d "${TEMPDIR}" ]; then
-  mkdir -p "${TEMPDIR}"
+if [ ! -d ${TEMPDIR} ]; then
+  mkdir -p ${TEMPDIR}
 fi
 
 for d in "T2_spec2"
