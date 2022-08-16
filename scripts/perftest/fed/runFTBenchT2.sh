@@ -40,7 +40,7 @@ trap 'err_report $LINENO' ERR
 export SYSDS_QUIET=1
 export LOG4JPROP=${BASEPATH}'/../conf/log4j.properties'
 export SYSTEMDS_STANDALONE_OPTS="-Xmx120g -Xms80g -Xmn50g"
-export CONFIG_FILE="${HOME}systemds/conf/no.opt.xml"
+CONFIG_FILE="${HOME}systemds/conf/no.opt.xml"
 
 # Create Temp Directory
 if [ ! -d ${TEMPDIR} ]; then
@@ -73,12 +73,12 @@ do
 
   echo "FTBench"
   ${CMD} -f "${BASEPATH}"/FTBench/T2.dml \
+    --config "${CONFIG_FILE}" \
     --nvargs \
       data="${TEMPDIR}"/"${DATA_BASENAME}".${d}.fed \
       target="${TEMPDIR}"/"$(basename ${CONFIG_FILE})".${d}.result \
       spec_file="${BASEPATH}"/data/${d}.json \
       fmt="csv"
-    # --config "${BASEPATH}"/../conf/SystemDS-config.xml \
 done
 
 # Kill the Federated Workers
