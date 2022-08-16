@@ -19,6 +19,8 @@
 
 package org.apache.sysds.runtime.transform.encode;
 
+import static org.apache.sysds.runtime.util.UtilFunctions.getEndIndex;
+
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -27,8 +29,9 @@ import java.util.HashMap;
 import java.util.PriorityQueue;
 import java.util.concurrent.Callable;
 
-import static org.apache.sysds.runtime.util.UtilFunctions.getEndIndex;
 import org.apache.commons.lang3.tuple.MutableTriple;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.sysds.api.DMLScript;
 import org.apache.sysds.lops.Lop;
 import org.apache.sysds.runtime.controlprogram.caching.CacheBlock;
@@ -37,6 +40,7 @@ import org.apache.sysds.runtime.matrix.data.MatrixBlock;
 import org.apache.sysds.utils.stats.TransformStatistics;
 
 public class ColumnEncoderBin extends ColumnEncoder {
+	private static final Log LOG = LogFactory.getLog(ColumnEncoderBin.class.getName());
 	public static final String MIN_PREFIX = "min";
 	public static final String MAX_PREFIX = "max";
 	public static final String NBINS_PREFIX = "nbins";
@@ -158,7 +162,7 @@ public class ColumnEncoderBin extends ColumnEncoder {
 		}
 		return bin;
 	}
-	
+
 	@Override
 	protected double[] getCodeCol(CacheBlock in, int startInd, int blkSize) {
 		// find the right bucket for a block of rows
@@ -289,7 +293,7 @@ public class ColumnEncoderBin extends ColumnEncoder {
 	}
 
 	@Override
-	protected ColumnApplyTask<? extends ColumnEncoder> 
+	protected ColumnApplyTask<? extends ColumnEncoder>
 		getSparseTask(CacheBlock in, MatrixBlock out, int outputCol, int startRow, int blk) {
 		return new BinSparseApplyTask(this, in, out, outputCol);
 	}
@@ -428,7 +432,7 @@ public class ColumnEncoderBin extends ColumnEncoder {
 		private final HashMap<Integer, Object> _partialData;
 
 		// if a pool is passed the task may be split up into multiple smaller tasks.
-		protected BinPartialBuildTask(CacheBlock input, int colID, int startRow, 
+		protected BinPartialBuildTask(CacheBlock input, int colID, int startRow,
 				int blocksize, BinMethod method, HashMap<Integer, Object> partialData) {
 			_input = input;
 			_blockSize = blocksize;

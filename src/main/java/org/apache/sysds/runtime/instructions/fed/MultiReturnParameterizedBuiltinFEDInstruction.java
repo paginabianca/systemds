@@ -112,6 +112,9 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
 		// obtain and pin input frame
 		FrameObject fin = ec.getFrameObject(input1.getName());
 		String spec = ec.getScalarInput(input2).getStringValue();
+        Timing timer = new Timing(true);
+        Timing t1 = new Timing(false);
+        double time = 0.0;
 
         LOG.debug("processInstruction fin:"+input1.getName()+"\tspec:"+spec);
 
@@ -125,7 +128,11 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
 		boolean containsEquiWidthEncoder = !fin.isFederated(FTypes.FType.ROW) && spec.toLowerCase().contains("equi-height");
 		if(containsEquiWidthEncoder) {
             LOG.debug("containsEquiWidthEncoder");
+            t1.start();
 			EncoderColnames ret = createGlobalEncoderWithEquiHeight(ec, fin, spec);
+            time = t1.stop();
+            LOG.debug("createGlobalEncoderWithEquiHeight took: "+time+" ms");
+
 			globalEncoder = ret._encoder;
 			colNames = ret._colnames;
 		} else {
@@ -170,7 +177,10 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
 
 		// sort for consistent encoding in local and federated
 		if(ColumnEncoderRecode.SORT_RECODE_MAP) {
-			globalEncoder.applyToAll(ColumnEncoderRecode.class, ColumnEncoderRecode::sortCPRecodeMaps);
+          t1.start();
+          globalEncoder.applyToAll(ColumnEncoderRecode.class, ColumnEncoderRecode::sortCPRecodeMaps);
+          time = t1.stop();
+          LOG.debug("globalEncoder.applyToAll took: "+time+" ms");
 		}
 
 		FrameBlock meta = new FrameBlock((int) fin.getNumColumns(), Types.ValueType.STRING);
@@ -178,10 +188,16 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
 		globalEncoder.getMetaData(meta);
 		globalEncoder.initMetaData(meta);
 
+
+        t1.start();
 		encodeFederatedFrames(fedMapping, globalEncoder, ec.getMatrixObject(getOutput(0)));
+        time = t1.stop();
+        LOG.debug("encodeFederatedFrames took: "+time+" ms");
 
 		// release input and outputs
 		ec.setFrameOutput(getOutput(1).getName(), meta);
+        time = timer.stop();
+        LOG.debug("processInstruction took: "+time+" ms");
 	}
 
 	private class EncoderColnames {
