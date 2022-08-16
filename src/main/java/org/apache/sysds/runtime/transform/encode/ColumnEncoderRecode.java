@@ -186,7 +186,7 @@ public class ColumnEncoderRecode extends ColumnEncoder {
 	}
 
 	@Override
-	public Callable<Object> getPartialBuildTask(CacheBlock in, int startRow, 
+	public Callable<Object> getPartialBuildTask(CacheBlock in, int startRow,
 			int blockSize, HashMap<Integer, Object> ret) {
 		return new RecodePartialBuildTask(in, _colID, startRow, blockSize, ret);
 	}
@@ -215,7 +215,7 @@ public class ColumnEncoderRecode extends ColumnEncoder {
 		long code = lookupRCDMap(key);
 		return (code < 0) ? Double.NaN : code;
 	}
-	
+
 	@Override
 	protected double[] getCodeCol(CacheBlock in, int startInd, int blkSize) {
 		// lookup for a block of rows
@@ -256,7 +256,7 @@ public class ColumnEncoderRecode extends ColumnEncoder {
 
 
 	@Override
-	protected ColumnApplyTask<? extends ColumnEncoder> 
+	protected ColumnApplyTask<? extends ColumnEncoder>
 		getSparseTask(CacheBlock in, MatrixBlock out, int outputCol, int startRow, int blk){
 		return new RecodeSparseApplyTask(this, in ,out, outputCol, startRow, blk);
 	}
@@ -285,7 +285,7 @@ public class ColumnEncoderRecode extends ColumnEncoder {
 	public int getNumDistinctValues() {
 		return _rcdMap.size();
 	}
-	
+
 	@Override
 	public void allocateMetaData(FrameBlock meta) {
 		// allocate output rows
@@ -406,7 +406,7 @@ public class ColumnEncoderRecode extends ColumnEncoder {
 		private final int _colID;
 		private final HashMap<Integer, Object> _partialMaps;
 
-		protected RecodePartialBuildTask(CacheBlock input, int colID, int startRow, 
+		protected RecodePartialBuildTask(CacheBlock input, int colID, int startRow,
 				int blocksize, HashMap<Integer, Object> partialMaps) {
 			_input = input;
 			_blockSize = blocksize;
