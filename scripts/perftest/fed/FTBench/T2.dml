@@ -30,7 +30,7 @@ spec = read($spec_file, data_type="scalar",value_type="string");
 # y = as.matrix(data[,472])
 print("("+nrow(data)+", "+ncol(data)+")");
 
-lim = 2;
+lim = 10;
 R = matrix(0, rows=lim, cols=1);
 for (i in 1:lim) {
   print("INFO: starting transformencode");
@@ -45,6 +45,6 @@ for (i in 1:lim) {
 
 R = order(target=R, by=1);
 res = R[1:2,];
-write(res, $target, format="csv", sep="\t");
+write(R, $target, format="csv", sep="\t");
 print("("+nrow(X_scaled)+", "+ncol(X_scaled)+")");
 #print("("+nrow(X_en)+", "+ncol(X_en)+")");
