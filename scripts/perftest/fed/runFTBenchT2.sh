@@ -40,7 +40,7 @@ trap 'err_report $LINENO' ERR
 export SYSDS_QUIET=1
 export LOG4JPROP=${BASEPATH}'/../conf/log4j.properties'
 export SYSTEMDS_STANDALONE_OPTS="-Xmx120g -Xms80g -Xmn50g"
-CONFIG_FILE="${HOME}systemds/conf/no.opt.xml"
+CONFIG_FILE="${HOME}/systemds/conf/no.opt.xml"
 
 # Create Temp Directory
 if [ ! -d ${TEMPDIR} ]; then

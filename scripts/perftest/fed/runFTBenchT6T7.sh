@@ -42,26 +42,26 @@ trap 'err_report $LINENO' ERR
 export SYSDS_QUIET=1
 export LOG4JPROP=${BASEPATH}'/../conf/log4j.properties'
 export SYSTEMDS_STANDALONE_OPTS="-Xmx120g -Xms80g -Xmn50g"
-CONFIG_FILE="${HOME}systemds/conf/no.opt.xml"
+CONFIG_FILE="${HOME}/systemds/conf/no.opt.xml"
 
 # Start the Federated Workers on Localhost
 "${BASEPATH}"/utils/startFedWorkers.sh systemds "$TEMPDIR" "$NUMFED" "localhost";
 
 for d in "T6_spec" "T7_spec"
 do
-  echo "Split And Make Federated"
-  ${CMD} -f "${BASEPATH}"/data/splitAndMakeFederatedFrame.dml \
-    --config "${BASEPATH}"/../conf/SystemDS-config.xml \
-    --nvargs \
-      data="${DATA}" \
-      nSplit="${NUMFED}" \
-      target="${TEMPDIR}"/"${DATA_BASENAME}"."${d}".fed\
-      hosts="${TEMPDIR}"/workers/hosts \
-      fmt="csv"
+  # echo "Split And Make Federated"
+  # ${CMD} -f "${BASEPATH}"/data/splitAndMakeFederatedFrame.dml \
+  #   --config "${BASEPATH}"/../conf/SystemDS-config.xml \
+  #   --nvargs \
+  #     data="${DATA}" \
+  #     nSplit="${NUMFED}" \
+  #     target="${TEMPDIR}"/"${DATA_BASENAME}"."${d}".fed\
+  #     hosts="${TEMPDIR}"/workers/hosts \
+  #     fmt="csv"
 
   # splitting and making the code federated...
   ${CMD} -f "${BASEPATH}"/FTBench/T6T7.dml \
-    --config "${BASEPATH}"/../conf/SystemDS-config.xml \
+    --config "${CONFIG_FILE}" \
     --nvargs \
       data="${TEMPDIR}"/"${DATA_BASENAME}"."${d}".fed\
       target="${TEMPDIR}"/"${DATA_BASENAME}"."${d}".result \
