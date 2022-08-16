@@ -73,12 +73,12 @@ do
 
   echo "FTBench"
   ${CMD} -f "${BASEPATH}"/FTBench/T2.dml \
-    --config "${BASEPATH}"/../conf/SystemDS-config.xml \
     --nvargs \
       data="${TEMPDIR}"/"${DATA_BASENAME}".${d}.fed \
       target="${TEMPDIR}"/"$(basename ${CONFIG_FILE})".${d}.result \
       spec_file="${BASEPATH}"/data/${d}.json \
       fmt="csv"
+    # --config "${BASEPATH}"/../conf/SystemDS-config.xml \
 done
 
 # Kill the Federated Workers
