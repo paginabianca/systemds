@@ -49,22 +49,22 @@ CONFIG_FILE="${HOME}/systemds/conf/no.opt.xml"
 
 for d in "T6_spec" "T7_spec"
 do
-  # echo "Split And Make Federated"
-  # ${CMD} -f "${BASEPATH}"/data/splitAndMakeFederatedFrame.dml \
-  #   --config "${BASEPATH}"/../conf/SystemDS-config.xml \
-  #   --nvargs \
-  #     data="${DATA}" \
-  #     nSplit="${NUMFED}" \
-  #     target="${TEMPDIR}"/"${DATA_BASENAME}"."${d}".fed\
-  #     hosts="${TEMPDIR}"/workers/hosts \
-  #     fmt="csv"
+   echo "Split And Make Federated"
+   ${CMD} -f "${BASEPATH}"/data/splitAndMakeFederatedFrame.dml \
+     --config "${BASEPATH}"/../conf/SystemDS-config.xml \
+     --nvargs \
+       data="${DATA}" \
+       nSplit="${NUMFED}" \
+       target="${TEMPDIR}"/"${DATA_BASENAME}"."${d}".fed\
+       hosts="${TEMPDIR}"/workers/hosts \
+       fmt="csv"
 
   # splitting and making the code federated...
   ${CMD} -f "${BASEPATH}"/FTBench/T6T7.dml \
     --config "${CONFIG_FILE}" \
     --nvargs \
       data="${TEMPDIR}"/"${DATA_BASENAME}"."${d}".fed\
-      target="${TEMPDIR}"/"${DATA_BASENAME}"."${d}".result \
+      target="${TEMPDIR}"/"$(basename $CONFIG_FILE )"."${d}".result \
       spec_file="${BASEPATH}"/data/"${d}".json \
       fmt="csv"
 done
