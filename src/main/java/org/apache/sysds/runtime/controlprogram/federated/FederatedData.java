@@ -34,10 +34,11 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.sysds.common.Types;
 import org.apache.sysds.conf.ConfigurationManager;
 import org.apache.sysds.conf.DMLConfig;
+import org.apache.sysds.runtime.DMLRuntimeException;
 import org.apache.sysds.runtime.controlprogram.caching.CacheBlock;
 import org.apache.sysds.runtime.controlprogram.federated.FederatedRequest.RequestType;
 import org.apache.sysds.runtime.controlprogram.paramserv.NetworkTrafficCounter;
-import org.apache.sysds.runtime.DMLRuntimeException;
+import org.apache.sysds.runtime.controlprogram.parfor.stat.Timing;
 import org.apache.sysds.runtime.meta.MetaData;
 
 import io.netty.bootstrap.Bootstrap;
@@ -181,33 +182,71 @@ public class FederatedData {
 	 */
 	public synchronized static Future<FederatedResponse> executeFederatedOperation(InetSocketAddress address,
 		FederatedRequest... request) {
+      Timing timer = new Timing(true);
+      Timing t1 = new Timing(false);
+      double time = 0.0;
       LOG.debug("executingFederatedOperation() request: "+request.toString());
 		try {
-            LOG.debug("new Bootstrap");
+            LOG.debug("[eFO] new Bootstrap");
 			final Bootstrap b = new Bootstrap();
 			if(workerGroup == null){
-              LOG.debug("workerGroup == null");
+              LOG.debug("[eFO] workerGroup == null");
+              t1.start();
 				createWorkGroup();
+              time = t1.stop();
+              LOG.debug("[eFO] createWorkGroup took: "+ time + " ms");
             }
             LOG.debug("workerGroup");
+            t1.start();
 			b.group(workerGroup);
+            time = t1.stop();
+            LOG.debug("[eFO] b.group(workerGroup) took: "+ time + " ms");
+
             LOG.debug("b.channel");
+            t1.start();
 			b.channel(NioSocketChannel.class);
+            time = t1.stop();
+            LOG.debug("[eFO] b.channel(NioSocketChannel.class) took: "+ time + " ms");
+
             LOG.debug("new DataRequestHandler");
+            t1.start();
 			final DataRequestHandler handler = new DataRequestHandler();
+            time = t1.stop();
+            LOG.debug("[eFO] new DataRequestHandler took: "+ time + " ms");
 			// Client Netty
 
             LOG.debug("createChannel");
+            t1.start();
 			b.handler(createChannel(address, handler));
+            time = t1.stop();
+            LOG.debug("[eFO] b.handler took: "+ time + " ms");
 
             LOG.debug("b.connect");
+            t1.start();
 			ChannelFuture f = b.connect(address).sync();
+            time = t1.stop();
+            LOG.debug("[eFO] b.connect took: "+ time + " ms");
+
             LOG.debug("f.channel.eventloop.newpromise");
+            t1.start();
 			Promise<FederatedResponse> promise = f.channel().eventLoop().newPromise();
+            time = t1.stop();
+            LOG.debug("[eFO] f.channel.eventLoop.newpromise took: "+ time + " ms");
+
+            t1.start();
 			handler.setPromise(promise);
+            time = t1.stop();
+            LOG.debug("[eFO] handler.setPromise took: "+ time + " ms");
+
             LOG.debug("writeandflushchannel");
+            t1.start();
 			f.channel().writeAndFlush(request);
+            time = t1.stop();
+            LOG.debug("[eFO] createWorkGroup took: "+ time + " ms");
+
             LOG.debug("writeAndFlush done");
+            time = timer.stop();
+            LOG.debug("executingFederatedOperation took:" + time +" ms");
 			return handler.getProm();
 		}
 		catch(Exception e) {
