@@ -415,6 +415,7 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
 			// apply transformation
             t1.start();
             MatrixBlock mbout;
+            LOG.debug("THIS SHOULD NOT BE IN LOCAL EXECUTION");
             if(ConfigurationManager.getDMLConfig().getBooleanValue(DMLConfig.MCE_PAR)){
               LOG.info("applying with " +OptimizerUtils.getTransformNumThreads() +" threads");
               mbout = _encoder.apply(fb, OptimizerUtils.getTransformNumThreads());
