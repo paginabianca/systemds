@@ -35,6 +35,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.sysds.api.DMLScript;
 import org.apache.sysds.lops.Lop;
 import org.apache.sysds.runtime.controlprogram.caching.CacheBlock;
+import org.apache.sysds.runtime.controlprogram.parfor.stat.Timing;
 import org.apache.sysds.runtime.matrix.data.FrameBlock;
 import org.apache.sysds.runtime.matrix.data.MatrixBlock;
 import org.apache.sysds.utils.stats.TransformStatistics;
@@ -128,8 +129,11 @@ public class ColumnEncoderBin extends ColumnEncoder {
 		if(!isApplicable())
 			return;
 		if(_binMethod == BinMethod.EQUI_WIDTH) {
+            Timing timer = new Timing(true);
 			double[] pairMinMax = getMinMaxOfCol(in, _colID, 0, -1);
 			computeBins(pairMinMax[0], pairMinMax[1]);
+            double time = timer.stop();
+            LOG.debug("build took:"+time+" ms");
 		}
 		else if(_binMethod == BinMethod.EQUI_HEIGHT) {
 			computeEqualHeightBins(equiHeightMaxs, true);

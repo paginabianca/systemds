@@ -290,6 +290,10 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
 		long varID = FederationUtils.getNextFedDataID();
 		FederationMap transformedFedMapping = fedMapping.mapParallel(varID, (range, data) -> {
 			// copy because we reuse it
+            Log LOG = LogFactory.getLog("MultiReturnParameterizedBuiltinFEDInstruction:encodeFederatedFrames:mapParallel");
+            Timing t1 = new Timing(true);
+            Timing t2 = new Timing(false);
+            double time = 0.0;
 			long[] beginDims = range.getBeginDims();
 			long[] endDims = range.getEndDims();
 			IndexRange ixRange = new IndexRange(beginDims[0], endDims[0], beginDims[1], endDims[1]).add(1);// make
@@ -302,14 +306,19 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
 			encoder.updateIndexRanges(beginDims, endDims, globalencoder.getNumExtraCols(ixRangeInv));
 
 			try {
+                t2.start();
 				FederatedResponse response = data.executeFederatedOperation(new FederatedRequest(RequestType.EXEC_UDF,
 					-1, new ExecuteFrameEncoder(data.getVarID(), varID, encoder))).get();
+                time = t2.stop();
+                LOG.debug("executeFederatedOperation took:"+time+" ms");
 				if(!response.isSuccessful())
 					response.throwExceptionFromResponse();
 			}
 			catch(Exception e) {
 				throw new DMLRuntimeException(e);
 			}
+            time = t1.stop();
+            LOG.debug("mapParallel took:"+time+" ms");
 			return null;
 		});
         double time = timer.stop();
