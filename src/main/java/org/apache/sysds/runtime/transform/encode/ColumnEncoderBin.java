@@ -366,6 +366,7 @@ public class ColumnEncoderBin extends ColumnEncoder {
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
+        Timing t1 = new Timing(false);
 		super.writeExternal(out);
 
 		out.writeInt(_numBin);
@@ -377,6 +378,8 @@ public class ColumnEncoderBin extends ColumnEncoder {
 				out.writeDouble(_binMins[j]);
 			}
 		}
+        double time = t1.stop();
+        LOG.debug("done with writeExternal took:" + time + " ms");
 	}
 
 	@Override

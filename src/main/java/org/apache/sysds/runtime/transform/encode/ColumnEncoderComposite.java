@@ -27,21 +27,21 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.sysds.runtime.DMLRuntimeException;
 import org.apache.sysds.runtime.controlprogram.caching.CacheBlock;
+import org.apache.sysds.runtime.controlprogram.parfor.stat.Timing;
 import org.apache.sysds.runtime.matrix.data.FrameBlock;
 import org.apache.sysds.runtime.matrix.data.MatrixBlock;
 import org.apache.sysds.runtime.util.DependencyTask;
 import org.apache.sysds.runtime.util.DependencyThreadPool;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Simple composite encoder that applies a list of encoders in specified order. By implementing the default encoder API
@@ -339,6 +339,7 @@ public class ColumnEncoderComposite extends ColumnEncoder {
 	public void writeExternal(ObjectOutput out) throws IOException {
         // LOG.debug("write external. I guess here we send the ColumnEncoderComposite to the federed worker?");
         // LOG.debug("this.toString:"+this.toString());
+      Timing t1 = new Timing(false);
 		out.writeInt(_columnEncoders.size());
 		for(ColumnEncoder columnEncoder : _columnEncoders) {
 			out.writeInt(columnEncoder._colID);
@@ -348,7 +349,8 @@ public class ColumnEncoderComposite extends ColumnEncoder {
 		out.writeBoolean(_meta != null);
 		if(_meta != null)
 			_meta.write(out);
-        LOG.debug("done with writeExternal");
+        double time = t1.stop();
+        LOG.debug("done with writeExternal took:" + time + " ms");
 	}
 
 	@Override
