@@ -414,7 +414,14 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
             LOG.debug("applyColumnOffset: took: " + time + " ms");
 			// apply transformation
             t1.start();
-			MatrixBlock mbout = _encoder.apply(fb);
+            MatrixBlock mbout;
+            if(ConfigurationManager.getDMLConfig().getBooleanValue(DMLConfig.MCE_PAR)){
+              LOG.info("applying with " +OptimizerUtils.getTransformNumThreads() +" threads");
+              mbout = _encoder.apply(fb, OptimizerUtils.getTransformNumThreads());
+            } else{
+              LOG.info("applying with 1 threads");
+              mbout = _encoder.apply(fb);
+            }
             time = t1.stop();
             LOG.debug("applied encodeer ExecuteFrameEncoder: took: " + time + " ms");
 

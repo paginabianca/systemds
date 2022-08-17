@@ -315,6 +315,8 @@ public class MultiColumnEncoder implements Encoder {
 
 
 	public MatrixBlock apply(CacheBlock in) {
+        LOG.debug("apply(k=1)");
+        if
 		return apply(in, 1); // this should maybe also be multithreaded?
 	}
 
