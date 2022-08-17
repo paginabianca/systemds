@@ -337,9 +337,7 @@ public class ColumnEncoderComposite extends ColumnEncoder {
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-        // LOG.debug("write external. I guess here we send the ColumnEncoderComposite to the federed worker?");
-        // LOG.debug("this.toString:"+this.toString());
-      Timing t1 = new Timing(false);
+        Timing t1 = new Timing(true);
 		out.writeInt(_columnEncoders.size());
 		for(ColumnEncoder columnEncoder : _columnEncoders) {
 			out.writeInt(columnEncoder._colID);
@@ -357,6 +355,8 @@ public class ColumnEncoderComposite extends ColumnEncoder {
 	public void readExternal(ObjectInput in) throws IOException {
         // LOG.debug("readExternal > here we create the 'empty' column encoder objects without any specs/name");
         // LOG.debug("in: "+in.toString()+"\tclass: "+in.getClass().toString());
+
+        Timing t1 = new Timing(true);
 		int encodersSize = in.readInt();
         // LOG.debug("encodersSize: "+encodersSize);
 
@@ -373,6 +373,9 @@ public class ColumnEncoderComposite extends ColumnEncoder {
 			meta.readFields(in);
 			_meta = meta;
 		}
+        double time = t1.stop();
+        LOG.debug("done with readExternal took:" + time + " ms");
+
 	}
 
 	public <T extends ColumnEncoder> boolean hasEncoder(Class<T> type) {

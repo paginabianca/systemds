@@ -366,7 +366,7 @@ public class ColumnEncoderBin extends ColumnEncoder {
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-        Timing t1 = new Timing(false);
+        Timing t1 = new Timing(true);
 		super.writeExternal(out);
 
 		out.writeInt(_numBin);
@@ -384,6 +384,7 @@ public class ColumnEncoderBin extends ColumnEncoder {
 
 	@Override
 	public void readExternal(ObjectInput in) throws IOException {
+        Timing t1 = new Timing(true);
 		super.readExternal(in);
 		_numBin = in.readInt();
 		setBinMethod(in.readUTF());
@@ -396,6 +397,8 @@ public class ColumnEncoderBin extends ColumnEncoder {
 			_binMaxs[j] = in.readDouble();
 			_binMins[j] = in.readDouble();
 		}
+        double time = t1.stop();
+        LOG.debug("done with readExternal took:" + time + " ms");
 	}
 
 	public enum BinMethod {
