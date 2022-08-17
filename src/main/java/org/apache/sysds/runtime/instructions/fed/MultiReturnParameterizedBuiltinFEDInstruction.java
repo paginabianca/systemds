@@ -387,22 +387,36 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
 
 		public ExecuteFrameEncoder(long input, long output, MultiColumnEncoder encoder) {
 			super(new long[] {input});
+            Timing t1 = new Timing(true);
 			_outputID = output;
 			_encoder = encoder;
+            double time = t1.stop();
+            LOG.debug("ExecuteFrameEncoder Contstructor took: " +time + " ms");
 		}
 
 		@Override
 		public FederatedResponse execute(ExecutionContext ec, Data... data) {
-          LOG.debug("executing ExecuteFrameEncoder");
+          Timing timer = new Timing(true);
+          Timing t1 = new Timing(false);
+          double time  = 0.0;
+            LOG.debug("executing ExecuteFrameEncoder");
           // String funcName = ec.getScalarInput(inputs[0]).getStringValue();
 
+            t1.start();
 			FrameBlock fb = ((FrameObject) data[0]).acquireReadAndRelease();
+            time = t1.stop();
+            LOG.debug("acquireReadAndRelease: took: " + time + " ms");
 
 			// offset is applied on the Worker to shift the local encoders to their respective column
+            t1.start();
 			_encoder.applyColumnOffset();
+            time = t1.stop();
+            LOG.debug("applyColumnOffset: took: " + time + " ms");
 			// apply transformation
+            t1.start();
 			MatrixBlock mbout = _encoder.apply(fb);
-            LOG.debug("applied encodeer ExecuteFrameEncoder");
+            time = t1.stop();
+            LOG.debug("applied encodeer ExecuteFrameEncoder: took: " + time + " ms");
 
 			// create output matrix object
 			MatrixObject mo = ExecutionContext.createMatrixObject(mbout);
@@ -411,6 +425,8 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
 			ec.setVariable(String.valueOf(_outputID), mo);
 
 			// return id handle
+            time = timer.stop();
+            LOG.debug("execute took:" + time + " ms");
 			return new FederatedResponse(ResponseType.SUCCESS_EMPTY);
 		}
 
