@@ -30,7 +30,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -46,6 +49,7 @@ import org.apache.sysds.hops.OptimizerUtils;
 import org.apache.sysds.runtime.DMLRuntimeException;
 import org.apache.sysds.runtime.compress.estim.CompressedSizeEstimatorSample;
 import org.apache.sysds.runtime.controlprogram.caching.CacheBlock;
+import org.apache.sysds.runtime.controlprogram.parfor.stat.Timing;
 import org.apache.sysds.runtime.data.SparseBlock;
 import org.apache.sysds.runtime.data.SparseBlockCSR;
 import org.apache.sysds.runtime.data.SparseRowVector;
@@ -98,7 +102,11 @@ public class MultiColumnEncoder implements Encoder {
 				DependencyThreadPool pool = new DependencyThreadPool(k);
 				LOG.debug("Encoding with full DAG on " + k + " Threads");
 				try {
+                    Timing t1 = new Timing(true);
 					pool.submitAllAndWait(getEncodeTasks(in, out, pool));
+                    double time = t1.stop();
+                    LOG.debug("submitAllAndWait took: " + time + " ms");
+
 				}
 				catch(ExecutionException | InterruptedException e) {
 					LOG.error("MT Column encode failed");
