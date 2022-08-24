@@ -54,7 +54,7 @@ for d in "T2_spec2"
 do
   echo "FTBench"
   ${CMD} -f "${BASEPATH}"/FTBench/T2.dml \
-    --config "${BASEPATH}"/../conf/SystemDS-config.xml \
+    --config "${CONFIG_FILE}" \
     --nvargs \
       data="${TEMPDIR}"/"${DATA_BASENAME}".${d}.fed \
       target="${TEMPDIR}"/"${DATA_BASENAME}".${d}.result \

@@ -31,6 +31,7 @@ NUMFED=${4:-2}
 DATA=${5:-"${DATADIR}/crypto.csv"}
 DATA_BASENAME=$(basename "${DATA}")
 BASEPATH=$(dirname "$0")
+CONFIG_FILE=${6:-"../conf/SystemDS-config.xml"}
 
 # Error Prints
 err_report(){
@@ -42,10 +43,10 @@ trap 'err_report $LINENO' ERR
 export SYSDS_QUIET=1
 export LOG4JPROP=${BASEPATH}'/../conf/log4j.properties'
 export SYSTEMDS_STANDALONE_OPTS="-Xmx120g -Xms80g -Xmn50g"
-CONFIG_FILE="${HOME}/systemds/conf/no.opt.xml"
+# CONFIG_FILE="${HOME}/systemds/conf/no.opt.xml"
 
 # Start the Federated Workers on Localhost
-"${BASEPATH}"/utils/startFedWorkers.sh systemds "$TEMPDIR" "$NUMFED" "localhost";
+"${BASEPATH}"/utils/startFedWorkers.sh systemds "$TEMPDIR" "$NUMFED" "localhost" "${CONFIG_FILE}";
 
 for d in "T6_spec" "T7_spec"
 do
