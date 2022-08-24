@@ -24,11 +24,12 @@
 FILENAME=$0
 CMD=${1:-"systemds"}
 DATADIR=${2:-"temp/T2"}
-TEMPDIR=${3:-"temp/T22"}
+TEMPDIR=${3:-"temp/T2"}
 NUMFED=${4:-3}
 DATA=${5:-"${DATADIR}/KDD98.csv"}
 DATA_BASENAME=$(basename "${DATA}")
 BASEPATH=$(dirname "$0")
+CONFIG_FILE=${6:-"../conf/SystemDS-config.xml"}
 
 # Error Prints
 err_report(){
@@ -40,7 +41,6 @@ trap 'err_report $LINENO' ERR
 export SYSDS_QUIET=1
 export LOG4JPROP=${BASEPATH}'/../conf/log4j.properties'
 export SYSTEMDS_STANDALONE_OPTS="-Xmx120g -Xms80g -Xmn50g"
-CONFIG_FILE="${HOME}/systemds/conf/no.opt.xml"
 
 # Create Temp Directory
 if [ ! -d ${TEMPDIR} ]; then
@@ -48,7 +48,7 @@ if [ ! -d ${TEMPDIR} ]; then
 fi
 
 # Start the Federated Workers on Localhost
-"${BASEPATH}"/utils/startFedWorkers.sh systemds "${TEMPDIR}" "${NUMFED}" "localhost";
+"${BASEPATH}"/utils/startFedWorkers.sh systemds "${TEMPDIR}" "${NUMFED}" "localhost" "${CONFIG_FILE}";
 
 
 for d in "T2_spec2"
