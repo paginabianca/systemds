@@ -31,6 +31,7 @@ NUMFED=${4:-2}
 DATA=${5:-"${DATADIR}"/adult.csv}
 DATA_BASENAME=$(basename "${DATA}")
 BASEPATH=$(dirname "$0")
+CONFIG_FILE=${6:-"../../../conf/SystemDS-config-defaults.xml"}
 
 # Error Prints
 err_report(){
@@ -43,12 +44,12 @@ export SYSDS_QUIET=1
 export LOG4JPROP=${BASEPATH}/../conf/log4j-off.properties
 
 # Create Temp Directory
-if [ ! -d "${TEMPDIR}" ]; then
-  mkdir -p "${TEMPDIR}"
+if [ ! -d ${TEMPDIR} ]; then
+  mkdir -p ${TEMPDIR}
 fi
 
 # Start the Federated Workers on Localhost
-"${BASEPATH}"/utils/startFedWorkers.sh systemds "${TEMPDIR}" "${NUMFED}" "localhost";
+"${BASEPATH}"/utils/startFedWorkers.sh systemds "${TEMPDIR}" "${NUMFED}" "localhost" "${CONFIG_FILE}";
 
 echo "Split And Make Federated"
 ${CMD} -f "${BASEPATH}"/data/splitAndMakeFederatedFrame.dml \
