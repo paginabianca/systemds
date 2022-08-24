@@ -147,7 +147,10 @@ public class FrameReaderTextCSV extends FrameReader {
 				String cellStr = value.toString().trim();
 				emptyValuesFound = false;
 				col = 0;
+                LOG.debug("readCSVFrameFromInputSplit value:\t"+value.toString());
+                LOG.debug("readCSVFrameFromInputSplit delim:\t"+delim);
 				String[] parts = IOUtilFunctions.splitCSV(cellStr, delim);
+
 
 				// parse frame meta data (missing values / num distinct)
 				if(parts[0].equals(TfUtils.TXMTD_MVPREFIX) || parts[0].equals(TfUtils.TXMTD_NDPREFIX)) {
@@ -161,7 +164,7 @@ public class FrameReaderTextCSV extends FrameReader {
 				}
 
                 LOG.debug("readCSVFrameFromInputSplit parts.len():\t"+parts.length);
-                LOG.debug("readCSVFrameFromInputSplit parts:\t"+parts.toString());
+                LOG.debug("readCSVFrameFromInputSplit parts:\t"+parts);
 				for(String part : parts) // foreach cell
 				{
 					part = part.trim();
