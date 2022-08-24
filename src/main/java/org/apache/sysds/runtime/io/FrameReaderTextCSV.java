@@ -130,7 +130,8 @@ public class FrameReaderTextCSV extends FrameReader {
 		Text value = new Text();
 		int row = rl;
 		int col = -1;
-        LOG.debug("readCSVFrameFromInputSplit schema:\t"+schema.toString());
+        LOG.debug("readCSVFrameFromInputSplit schema.lengtht"+schema.length);
+        LOG.debug("readCSVFrameFromInputSplit delim:'"+delim+"'");
 
 
 		// handle header if existing
@@ -148,7 +149,6 @@ public class FrameReaderTextCSV extends FrameReader {
 				emptyValuesFound = false;
 				col = 0;
                 LOG.debug("readCSVFrameFromInputSplit key:\t"+key.toString()+" value:\t"+value.toString());
-                LOG.debug("readCSVFrameFromInputSplit delim:\t"+delim);
 				String[] parts = IOUtilFunctions.splitCSV(cellStr, delim);
 
 
@@ -172,6 +172,7 @@ public class FrameReaderTextCSV extends FrameReader {
 						emptyValuesFound = true;
 					}
 					else {
+                        LOG.debug("readCSVFrameFromInputSplit.else... schema[" + col +"]:"+schema[col].toString());
 						dest.set(row, col, UtilFunctions.stringToObject(schema[col], part));
 					}
 					col++;

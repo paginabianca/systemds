@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -44,7 +44,7 @@ import org.apache.sysds.runtime.util.CommonThreadPool;
 
 /**
  * Multi-threaded frame text csv reader.
- * 
+ *
  */
 public class FrameReaderTextCSVParallel extends FrameReaderTextCSV
 {
@@ -53,22 +53,22 @@ public class FrameReaderTextCSVParallel extends FrameReaderTextCSV
 	}
 
 	@Override
-	protected void readCSVFrameFromHDFS( Path path, JobConf job, FileSystem fs, 
-			FrameBlock dest, ValueType[] schema, String[] names, long rlen, long clen) 
+	protected void readCSVFrameFromHDFS( Path path, JobConf job, FileSystem fs,
+			FrameBlock dest, ValueType[] schema, String[] names, long rlen, long clen)
 		throws IOException
 	{
 		int numThreads = OptimizerUtils.getParallelTextReadParallelism();
-		
+
 		TextInputFormat informat = new TextInputFormat();
 		informat.configure(job);
-		InputSplit[] splits = informat.getSplits(job, numThreads); 
+		InputSplit[] splits = informat.getSplits(job, numThreads);
 		splits = IOUtilFunctions.sortInputSplits(splits);
 
-		try 
+		try
 		{
 			ExecutorService pool = CommonThreadPool.get(
 				Math.min(numThreads, splits.length));
-			
+
 			//compute num rows per split
 			ArrayList<CountRowsTask> tasks = new ArrayList<>();
 			for( int i=0; i<splits.length; i++ )
@@ -82,31 +82,31 @@ public class FrameReaderTextCSVParallel extends FrameReaderTextCSV
 				offsets.add(offset);
 				offset += count.get();
 			}
-			
+
 			//read individual splits
 			ArrayList<ReadRowsTask> tasks2 = new ArrayList<>();
 			for( int i=0; i<splits.length; i++ )
 				tasks2.add( new ReadRowsTask(splits[i], informat, job, dest, offsets.get(i).intValue(), i==0));
 			CommonThreadPool.invokeAndShutdown(pool, tasks2);
-		} 
+		}
 		catch (Exception e) {
 			throw new IOException("Failed parallel read of text csv input.", e);
 		}
 	}
 
 	@Override
-	protected Pair<Integer,Integer> computeCSVSize( Path path, JobConf job, FileSystem fs) 
-		throws IOException 
+	protected Pair<Integer,Integer> computeCSVSize( Path path, JobConf job, FileSystem fs)
+		throws IOException
 	{
 		int numThreads = OptimizerUtils.getParallelTextReadParallelism();
-		
+
 		TextInputFormat informat = new TextInputFormat();
 		informat.configure(job);
 		InputSplit[] splits = informat.getSplits(job, numThreads);
-		
+
 		//compute number of columns
 		int ncol = IOUtilFunctions.countNumColumnsCSV(splits, informat, job, _props.getDelim());
-		
+
 		//compute number of rows
 		int nrow = 0;
 		ExecutorService pool = CommonThreadPool.get(numThreads);
@@ -115,7 +115,7 @@ public class FrameReaderTextCSVParallel extends FrameReaderTextCSV
 			for( int i=0; i<splits.length; i++ )
 				tasks.add(new CountRowsTask(splits[i], informat, job, _props.hasHeader(), i==0));
 			List<Future<Long>> cret = pool.invokeAll(tasks);
-			for( Future<Long> count : cret ) 
+			for( Future<Long> count : cret )
 				nrow += count.get().intValue();
 		}
 		catch (Exception e) {
@@ -127,7 +127,7 @@ public class FrameReaderTextCSVParallel extends FrameReaderTextCSV
 		return new Pair<>(nrow, ncol);
 	}
 
-	private static class CountRowsTask implements Callable<Long> 
+	private static class CountRowsTask implements Callable<Long>
 	{
 		private InputSplit _split = null;
 		private TextInputFormat _informat = null;
@@ -144,14 +144,14 @@ public class FrameReaderTextCSVParallel extends FrameReaderTextCSV
 		}
 
 		@Override
-		public Long call() 
-			throws Exception 
+		public Long call()
+			throws Exception
 		{
 			RecordReader<LongWritable, Text> reader = _informat.getRecordReader(_split, _job, Reporter.NULL);
 			LongWritable key = new LongWritable();
 			Text value = new Text();
 			long nrows = 0;
-			
+
 			// count rows from the first non-header row
 			try {
 				if ( _firstSplit && _hasHeader )
@@ -159,9 +159,9 @@ public class FrameReaderTextCSVParallel extends FrameReaderTextCSV
 				while ( reader.next(key, value) ) {
 					String val = value.toString();
 					nrows += ( val.startsWith(TfUtils.TXMTD_MVPREFIX)
-						|| val.startsWith(TfUtils.TXMTD_NDPREFIX)) ? 0 : 1; 
+						|| val.startsWith(TfUtils.TXMTD_NDPREFIX)) ? 0 : 1;
 				}
-			} 
+			}
 			finally {
 				IOUtilFunctions.closeSilently(reader);
 			}
@@ -170,7 +170,7 @@ public class FrameReaderTextCSVParallel extends FrameReaderTextCSV
 		}
 	}
 
-	private class ReadRowsTask implements Callable<Object> 
+	private class ReadRowsTask implements Callable<Object>
 	{
 		private InputSplit _split = null;
 		private TextInputFormat _informat = null;
@@ -178,10 +178,11 @@ public class FrameReaderTextCSVParallel extends FrameReaderTextCSV
 		private FrameBlock _dest = null;
 		private int _offset = -1;
 		private boolean _isFirstSplit = false;
-		
-		
-		public ReadRowsTask(InputSplit split, TextInputFormat informat, JobConf job, 
-				FrameBlock dest, int offset, boolean first) 
+        protected static final Log LOG = LogFactory.getLog(ReadRowsTask.class.getName());
+
+
+		public ReadRowsTask(InputSplit split, TextInputFormat informat, JobConf job,
+				FrameBlock dest, int offset, boolean first)
 		{
 			_split = split;
 			_informat = informat;
@@ -192,10 +193,10 @@ public class FrameReaderTextCSVParallel extends FrameReaderTextCSV
 		}
 
 		@Override
-		public Object call() 
-			throws Exception 
+		public Object call()
+			throws Exception
 		{
-			readCSVFrameFromInputSplit(_split, _informat, _job, _dest, _dest.getSchema(), 
+			readCSVFrameFromInputSplit(_split, _informat, _job, _dest, _dest.getSchema(),
 					_dest.getColumnNames(), _dest.getNumRows(), _dest.getNumColumns(), _offset, _isFirstSplit);
 			return null;
 		}
