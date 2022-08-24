@@ -359,13 +359,16 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
             // NOTE: in this build of the MultiColumnEncoder there are a bunch of
             Timing t1 = new Timing(true);
             LOG.debug("THIS LINE SHOULD NOT BE IN LOCAL EXECUTION");
-            if(ConfigurationManager.getDMLConfig().getBooleanValue(DMLConfig.FEDERATED_PAR_TRANSFORMENCODE)){
-              LOG.info("building with " +OptimizerUtils.getTransformNumThreads() +" threads");
-              encoder.build(fb, OptimizerUtils.getTransformNumThreads() ); // FIXME skip equi-height sorting
-            } else{
-              LOG.info("building with 1 threads");
-              encoder.build(fb);
-            }
+
+            LOG.info("building with " +OptimizerUtils.getTransformNumThreads() +" threads");
+            encoder.build(fb, OptimizerUtils.getTransformNumThreads() ); // FIXME skip equi-height sorting
+            // if(ConfigurationManager.getDMLConfig().getBooleanValue(DMLConfig.FEDERATED_PAR_TRANSFORMENCODE)){
+            //   LOG.info("building with " +OptimizerUtils.getTransformNumThreads() +" threads");
+            //   encoder.build(fb, OptimizerUtils.getTransformNumThreads() ); // FIXME skip equi-height sorting
+            // } else{
+            //   LOG.info("building with 1 threads");
+            //   encoder.build(fb);
+            // }
             // encoder.build(fb, InfrastructureAnalyzer.getLocalParallelism() ); // FIXME skip equi-height sorting
             double time = t1.stop();
             LOG.info("Build took: "+ time +"ms");
