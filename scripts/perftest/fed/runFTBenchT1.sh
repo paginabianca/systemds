@@ -68,7 +68,7 @@ do
     --config "${CONFIG_FILE}" \
     --nvargs \
       data="${TEMPDIR}"/"${DATA_BASENAME}".fed\
-      target="${TEMPDIR}"/"${DATA_BASENAME}"."${d}".result \
+      target="${TEMPDIR}"/"$(basename ${CONFIG_FILE})".${d}.result \
       spec_file="${BASEPATH}"/data/"${d}".json \
       fmt="csv"
 done

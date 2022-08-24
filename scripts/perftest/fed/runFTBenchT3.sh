@@ -29,6 +29,7 @@ NUMFED=${4:-2}
 DATA=${5:-"${DATADIR}/criteo_day21_10M"}
 DATA_BASENAME=$(basename "${DATA}")
 BASEPATH=$(dirname "$0")
+CONFIG_FILE=${6:-"../conf/SystemDS-config.xml"}
 
 # Error Prints
 err_report(){
@@ -42,12 +43,12 @@ export LOG4JPROP=${BASEPATH}'/../conf/log4j-off.properties'
 export SYSTEMDS_STANDALONE_OPTS="-Xmx120g -Xms80g -Xmn50g"
 
 # Create Temp Directory
-if [ ! -d "${TEMPDIR}" ]; then
-  mkdir -p "${TEMPDIR}"
+if [ ! -d ${TEMPDIR} ]; then
+  mkdir -p ${TEMPDIR}
 fi
 
 # Start the Federated Workers on Localhost
-"${BASEPATH}"/utils/startFedWorkers.sh systemds "${TEMPDIR}" "${NUMFED}" "localhost";
+"${BASEPATH}"/utils/startFedWorkers.sh systemds "${TEMPDIR}" "${NUMFED}" "localhost" "${CONFIG_FILE}";
 
 
 for d in "T3_spec"
@@ -64,7 +65,7 @@ do
 
   echo "FTBench"
   ${CMD} -f "${BASEPATH}"/FTBench/T3.dml \
-    --config "${BASEPATH}"/../conf/SystemDS-config.xml \
+    --config "${CONFIG_FILE}" \
     --nvargs \
       data="${TEMPDIR}"/"${DATA_BASENAME}".${d}.fed \
       target="${TEMPDIR}"/"${DATA_BASENAME}".${d}.result \
