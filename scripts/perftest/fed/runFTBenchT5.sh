@@ -31,6 +31,7 @@ NUMFED=${4:-2}
 DATA=${5:-"${DATADIR}/santander.csv"}
 DATA_BASENAME=$(basename "${DATA}")
 BASEPATH=$(dirname "$0")
+CONFIG_FILE=${6:-"../conf/SystemDS-config.xml"}
 
 # Error Prints
 err_report(){
@@ -44,12 +45,12 @@ export LOG4JPROP=${BASEPATH}/../conf/log4j.properties
 export SYSTEMDS_STANDALONE_OPTS="-Xmx110g -Xms50g -Xmn20g"
 
 # Create Temp Directory
-if [ ! -d "${TEMPDIR}" ]; then
-  mkdir -p "${TEMPDIR}"
+if [ ! -d ${TEMPDIR} ]; then
+  mkdir -p ${TEMPDIR}
 fi
 
 # Start the Federated Workers on Localhost
-"${BASEPATH}"/utils/startFedWorkers.sh systemds "${TEMPDIR}" "$NUMFED" "localhost";
+"${BASEPATH}"/utils/startFedWorkers.sh systemds "${TEMPDIR}" "$NUMFED" "localhost" "${CONFIG_FILE}";
 
 # santander_spec1 equi-with binning with numbins=10
 for d in "T5_spec"
@@ -66,7 +67,7 @@ do
 
   echo "FTBench"
   ${CMD} -f "${BASEPATH}"/FTBench/T5.dml \
-    --config "${BASEPATH}"/../conf/SystemDS-config.xml \
+    --config "${CONFIG_FILE}" \
     --nvargs \
       data="${TEMPDIR}"/"${DATA_BASENAME}".fed\
       target="${TEMPDIR}"/"${DATA_BASENAME}"."${d}".result \
