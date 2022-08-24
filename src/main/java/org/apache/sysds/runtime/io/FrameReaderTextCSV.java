@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -45,7 +45,7 @@ import org.apache.sysds.runtime.util.UtilFunctions;
 
 /**
  * Single-threaded frame text csv reader.
- * 
+ *
  */
 public class FrameReaderTextCSV extends FrameReader {
 	protected final FileFormatPropertiesCSV _props;
@@ -130,6 +130,8 @@ public class FrameReaderTextCSV extends FrameReader {
 		Text value = new Text();
 		int row = rl;
 		int col = -1;
+        LOG.debug("readCSVFrameFromInputSplit schema:\t"+schema.toString());
+
 
 		// handle header if existing
 		if(first && hasHeader) {
@@ -158,6 +160,8 @@ public class FrameReaderTextCSV extends FrameReader {
 					continue;
 				}
 
+                LOG.debug("readCSVFrameFromInputSplit parts.len():\t"+parts.length);
+                LOG.debug("readCSVFrameFromInputSplit parts:\t"+parts.toString());
 				for(String part : parts) // foreach cell
 				{
 					part = part.trim();

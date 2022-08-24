@@ -55,7 +55,7 @@ fi
 
 for d in "T11"
 do
-  for INPUT in $DATA $METAFRAME #$EMBEDDINGS
+  for INPUT in $METAFRAME #$DATA #$EMBEDDINGS -- only metaframe is needed since it's the only one that fails
   do
     echo "Split And Make Federated "$INPUT
     ${CMD} -f "${BASEPATH}"/data/splitAndMakeFederatedFrame.dml \
