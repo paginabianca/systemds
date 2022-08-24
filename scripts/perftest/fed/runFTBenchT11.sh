@@ -25,10 +25,11 @@ FILENAME=$0
 CMD=${1:-"systemds"}
 DATADIR=${2:-"temp/T11"}
 TEMPDIR=${3:-"temp/T11"}
-NUMFED=${4:-3}
-DATA=${5:-"${DATADIR}/AminerAbstractSequence.csv"}
-METAFRAME=${6:-"${DATADIR}/wiki_embeddings/wiki_metaframe"}
-EMBEDDINGS=${7:-"${DATADIR}/wiki_embeddings/wiki_embeddings"}
+NUMFED=${4:-2}
+CONFIG_FILE=${5:-"../conf/SystemDS-config.xml"}
+DATA=${6:-"${DATADIR}/AminerAbstractSequence.csv"}
+METAFRAME=${7:-"${DATADIR}/wiki_embeddings/wiki_metaframe"}
+EMBEDDINGS=${8:-"${DATADIR}/wiki_embeddings/wiki_embeddings"}
 DATA_BASENAME=$(basename "${DATA}")
 BASEPATH=$(dirname "$0")
 
@@ -40,16 +41,16 @@ trap 'err_report $LINENO' ERR
 
 # Set Properties
 export SYSDS_QUIET=1
-export LOG4JPROP=${BASEPATH}'/../conf/log4j-off.properties'
-# export SYSTEMDS_STANDALONE_OPTS="-Xmx120g -Xms80g -Xmn50g"
+export LOG4JPROP=${BASEPATH}'/../conf/log4j.properties'
+export SYSTEMDS_STANDALONE_OPTS="-Xmx120g -Xms80g -Xmn50g"
 
 # Create Temp Directory
-if [ ! -d "${TEMPDIR}" ]; then
-  mkdir -p "${TEMPDIR}"
+if [ ! -d ${TEMPDIR} ]; then
+  mkdir -p ${TEMPDIR}
 fi
 
 # Start the Federated Workers on Localhost
-"${BASEPATH}"/utils/startFedWorkers.sh systemds "${TEMPDIR}" "${NUMFED}" "localhost";
+"${BASEPATH}"/utils/startFedWorkers.sh systemds "${TEMPDIR}" "${NUMFED}" "localhost" "${CONFIG_FILE}";
 
 
 for d in "T11"
@@ -81,12 +82,12 @@ do
 
   echo "FTBench"
   ${CMD} -f "${BASEPATH}"/FTBench/T11.dml \
-    --config "${BASEPATH}"/../conf/SystemDS-config.xml \
+    --config "${CONFIG_FILE}" \
     --nvargs \
       data="${TEMPDIR}"/"${DATA_BASENAME}".${d}.fed \
       metaframe="${TEMPDIR}"/"$(basename "$METAFRAME")".${d}.fed \
       embeddings="${TEMPDIR}"/"$(basename "$EMBEDDINGS")".${d}.fed \
-      target="${TEMPDIR}"/"${DATA_BASENAME}".${d}.result \
+      target="${TEMPDIR}"/"$(basename ${CONFIG_FILE})".${d}.result \
       spec_file="${BASEPATH}"/data/${d}.json \
       fmt="csv"
 done
