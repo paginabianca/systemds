@@ -361,14 +361,14 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
             LOG.debug("THIS LINE SHOULD NOT BE IN LOCAL EXECUTION");
 
             LOG.info("building with " +OptimizerUtils.getTransformNumThreads() +" threads");
-            encoder.build(fb, OptimizerUtils.getTransformNumThreads() ); // FIXME skip equi-height sorting
-            // if(ConfigurationManager.getDMLConfig().getBooleanValue(DMLConfig.FEDERATED_PAR_TRANSFORMENCODE)){
-            //   LOG.info("building with " +OptimizerUtils.getTransformNumThreads() +" threads");
-            //   encoder.build(fb, OptimizerUtils.getTransformNumThreads() ); // FIXME skip equi-height sorting
-            // } else{
-            //   LOG.info("building with 1 threads");
-            //   encoder.build(fb);
-            // }
+            // encoder.build(fb, OptimizerUtils.getTransformNumThreads() ); // FIXME skip equi-height sorting
+            if(ConfigurationManager.getDMLConfig().getBooleanValue(DMLConfig.FEDERATED_PAR_TRANSFORMENCODE)){
+              LOG.info("building with " +OptimizerUtils.getTransformNumThreads() +" threads");
+              encoder.build(fb, OptimizerUtils.getTransformNumThreads() ); // FIXME skip equi-height sorting
+            } else{
+              LOG.info("building with 1 threads");
+              encoder.build(fb);
+            }
             // encoder.build(fb, InfrastructureAnalyzer.getLocalParallelism() ); // FIXME skip equi-height sorting
             double time = t1.stop();
             LOG.info("Build took: "+ time +"ms");
@@ -419,14 +419,14 @@ public class MultiReturnParameterizedBuiltinFEDInstruction extends ComputationFE
 			// apply transformation
             t1.start();
             LOG.debug("THIS SHOULD NOT BE IN LOCAL EXECUTION");
-            MatrixBlock mbout = _encoder.apply(fb, OptimizerUtils.getTransformNumThreads());
-            // if(ConfigurationManager.getDMLConfig().getBooleanValue(DMLConfig.MCE_PAR)){
-            //   LOG.info("applying with " +OptimizerUtils.getTransformNumThreads() +" threads");
-            //   mbout = _encoder.apply(fb, OptimizerUtils.getTransformNumThreads());
-            // } else{
-            //   LOG.info("applying with 1 threads");
-            //   mbout = _encoder.apply(fb);
-            // }
+            MatrixBlock mbout; //= _encoder.apply(fb, OptimizerUtils.getTransformNumThreads());
+            if(ConfigurationManager.getDMLConfig().getBooleanValue(DMLConfig.FEDERATED_PAR_TRANSFORMENCODE)){
+              LOG.info("applying with " +OptimizerUtils.getTransformNumThreads() +" threads");
+              mbout = _encoder.apply(fb, OptimizerUtils.getTransformNumThreads());
+            } else{
+              LOG.info("applying with 1 threads");
+              mbout = _encoder.apply(fb);
+            }
             time = t1.stop();
             LOG.debug("applied encodeer ExecuteFrameEncoder: took: " + time + " ms");
 
