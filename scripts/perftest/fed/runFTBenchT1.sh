@@ -53,7 +53,7 @@ fi
 
 echo "Split And Make Federated"
 ${CMD} -f "${BASEPATH}"/data/splitAndMakeFederatedFrame.dml \
-  --config "${BASEPATH}"/../conf/SystemDS-config.xml \
+  --config "${CONFIG_FILE}"/../conf/SystemDS-config.xml \
   --nvargs \
   data="${DATA}" \
   nSplit="${NUMFED}" \
@@ -65,7 +65,7 @@ for d in "T1_spec1" "T1_spec2"
 do
   echo "FTBench ${d}"
   ${CMD} -f "${BASEPATH}"/FTBench/T1.dml \
-    --config "${BASEPATH}"/../conf/SystemDS-config.xml \
+    --config "${CONFIG_FILE}" \
     --nvargs \
       data="${TEMPDIR}"/"${DATA_BASENAME}".fed\
       target="${TEMPDIR}"/"${DATA_BASENAME}"."${d}".result \
