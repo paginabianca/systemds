@@ -178,7 +178,6 @@ public class FrameReaderTextCSVParallel extends FrameReaderTextCSV
 		private FrameBlock _dest = null;
 		private int _offset = -1;
 		private boolean _isFirstSplit = false;
-        protected static final Log LOG = LogFactory.getLog(ReadRowsTask.class.getName());
 
 
 		public ReadRowsTask(InputSplit split, TextInputFormat informat, JobConf job,
