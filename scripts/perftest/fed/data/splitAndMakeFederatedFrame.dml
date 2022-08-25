@@ -27,7 +27,7 @@ hosts = read($hosts);
 nSplit = $nSplit;
 target = ifdef($target, data+"_fed.json");
 fmt = ifdef($fmt,"text");
-sep = ifdef($fmt,",");
+sep = ifdef($sep,",");
 hostOffset = ifdef($hostOffset,0);
 
 N = nrow(X);

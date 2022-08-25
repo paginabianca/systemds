@@ -637,6 +637,7 @@ public class FederatedWorkerHandler extends ChannelInboundHandlerAdapter {
 		public void operationComplete(ChannelFuture channelFuture) throws InterruptedException {
 			if(!channelFuture.isSuccess()) {
                 LOG.error("Here's some info: "+ channelFuture.toString());
+                LOG.error("ChannelFuture.class:"+ channelFuture.getClass().toString());
 				LOG.error("Federated Worker Write failed");
 				channelFuture.channel().writeAndFlush(new FederatedResponse(ResponseType.ERROR,
 					new FederatedWorkerHandlerException("Error while sending response."))).channel().close().sync();
