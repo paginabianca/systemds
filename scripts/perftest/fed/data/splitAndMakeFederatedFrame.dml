@@ -27,6 +27,7 @@ hosts = read($hosts);
 nSplit = $nSplit;
 target = ifdef($target, data+"_fed.json");
 fmt = ifdef($fmt,"text");
+sep = ifdef($fmt,",");
 hostOffset = ifdef($hostOffset,0);
 
 N = nrow(X);
@@ -41,7 +42,7 @@ for (counter in 1:nSplit){
   beginDim = (counter -1)* factor +1;
   endDim = counter * factor;
   X_part = X[beginDim:endDim,];
-  write(X_part,data+counter,format=fmt);
+  write(X_part, data+counter, format=fmt, sep=sep);
   hostIX = counter + hostOffset;
   addresses = append(addresses,as.scalar(hosts[hostIX]) + "/" + data + counter);
   ranges = append(ranges, list(beginDim - 1, 0));

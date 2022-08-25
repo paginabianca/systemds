@@ -130,8 +130,6 @@ public class FrameReaderTextCSV extends FrameReader {
 		Text value = new Text();
 		int row = rl;
 		int col = -1;
-        LOG.debug("readCSVFrameFromInputSplit schema.lengtht"+schema.length);
-        LOG.debug("readCSVFrameFromInputSplit delim:'"+delim+"'");
 
 
 		// handle header if existing
@@ -148,7 +146,7 @@ public class FrameReaderTextCSV extends FrameReader {
 				String cellStr = value.toString().trim();
 				emptyValuesFound = false;
 				col = 0;
-                LOG.debug("readCSVFrameFromInputSplit key:\t"+key.toString()+" value:\t"+value.toString());
+                // LOG.debug("readCSVFrameFromInputSplit key:\t"+key.toString()+" value:\t"+value.toString());
 				String[] parts = IOUtilFunctions.splitCSV(cellStr, delim);
 
 
@@ -166,13 +164,14 @@ public class FrameReaderTextCSV extends FrameReader {
 				for(String part : parts) // foreach cell
 				{
 					part = part.trim();
+                    // LOG.debug("readCSVFrameFromInputSplit parts");
 					if(part.isEmpty() || (naValues != null && naValues.contains(part))) {
 						if(isFill && dfillValue != 0)
 							dest.set(row, col, UtilFunctions.stringToObject(schema[col], sfillValue));
 						emptyValuesFound = true;
 					}
 					else {
-                        LOG.debug("readCSVFrameFromInputSplit.else... schema[" + col +"]:"+schema[col].toString());
+                        // LOG.debug("readCSVFrameFromInputSplit.else... schema[" + col +"]:"+schema[col].toString());
 						dest.set(row, col, UtilFunctions.stringToObject(schema[col], part));
 					}
 					col++;

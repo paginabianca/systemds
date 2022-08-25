@@ -26,8 +26,10 @@ lim = 5;
 R = matrix(0, rows=lim, cols=1);
 t1 = time();
 # Read the sequence-of-words and the dictionary
-data = read($data, data_type="frame", format="csv", header=FALSE);
-meta = read($metaframe, data_type="frame", format="csv", sep="--", header=FALSE);
+data = read($data);
+# data = read($data, data_type="frame", format="csv", header=FALSE);
+meta = read($metaframe);
+# meta = read($metaframe, data_type="frame", format="csv", sep="--", header=FALSE);
 # Read the pre-trained model
 W = read($embeddings, header=FALSE);
 # W = read("file:/home/aphani/datasets/wiki_embeddings/wiki_embeddings", header=FALSE);
@@ -66,7 +68,7 @@ while (iter < maxiter) {
   t2 = time();
   print("Elapsed time for transformapply + ctable = "+floor((t2-t1)/1000000)+" millsec");
   timer = timer + floor((t2-t1)/1000000);
-  R[i,1] = R[i,1] + floor((t2-t1)/1000000);
+  R[iter,1] = R[iter,1] + floor((t2-t1)/1000000);
   iter = iter + 1;
   beg = end + 1;
 }

@@ -64,4 +64,4 @@ for (counter in 1:nSplit) {
 }
 
 X_fed = federated(addresses=addresses, ranges=ranges);
-write(X_fed, target, format="federated"); # write the federated object to disk
+write(X_fed, target, format="csv"); # write the federated object to disk

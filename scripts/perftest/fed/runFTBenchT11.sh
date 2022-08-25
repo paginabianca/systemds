@@ -55,7 +55,7 @@ fi
 
 for d in "T11"
 do
-  for INPUT in $METAFRAME #$DATA #$EMBEDDINGS -- only metaframe is needed since it's the only one that fails
+  for INPUT in $DATA
   do
     echo "Split And Make Federated "$INPUT
     ${CMD} -f "${BASEPATH}"/data/splitAndMakeFederatedFrame.dml \
@@ -66,6 +66,18 @@ do
         target="${TEMPDIR}"/"$(basename "$INPUT")".${d}.fed \
         hosts="${TEMPDIR}"/workers/hosts \
         fmt="csv"
+  done
+  for INPUT in $METAFRAME
+  do
+    echo "Split And Make Federated "$INPUT
+    ${CMD} -f "${BASEPATH}"/data/splitAndMakeFederatedFrame.dml \
+      --config "${BASEPATH}"/../conf/SystemDS-config.xml \
+      --nvargs \
+        data="${INPUT}" \
+        nSplit="${NUMFED}" \
+        target="${TEMPDIR}"/"$(basename "$INPUT")".${d}.fed \
+        hosts="${TEMPDIR}"/workers/hosts \
+        fmt="csv" sep="--"
   done
   for INPUT in $EMBEDDINGS
   do
