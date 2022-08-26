@@ -1184,6 +1184,7 @@ public class MatrixBlock extends MatrixValue implements CacheBlock, Externalizab
 	public static boolean evalSparseFormatInMemory(final long nrows,
 		final long ncols, final long nnz, final boolean allowCSR)
 	{
+        LOG.debug("evalSparseFormatInMemory nrows: "+nrows+"\tncols:"+ncols+"\tnnz:"+nnz);
 		//evaluate sparsity threshold
 		double lsparsity = (double)nnz/nrows/ncols;
 		boolean lsparse = (lsparsity < SPARSITY_TURN_POINT) && ncols > 1;
@@ -1195,7 +1196,7 @@ public class MatrixBlock extends MatrixValue implements CacheBlock, Externalizab
 		double sizeSparse = estimateSizeSparseInMemory(nrows, ncols, lsparsity, allowCSR);
 		double sizeDense = estimateSizeDenseInMemory(nrows, ncols);
 
-        LOG.debug("evalSparceFormat sizeSparse:"+sizeSparse+"\tsizeDense:"+sizeDense);
+        LOG.debug("evalSparceFormat sizeSparse:"+sizeSparse+"\tsizeDense: "+sizeDense);
 		return lsparse && (sizeSparse<sizeDense);
 	}
 
