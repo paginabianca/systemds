@@ -27,8 +27,8 @@ specs = append(specs, jspec6);
 colList = matrix(1, rows=1, cols=ncol(data));
 maxIter = length(specs);
 
-lim = 10;
-R = matrix(0,rows=lim,cols=3)
+lim = 5;
+R = matrix(0,rows=lim*maxIter,cols=3)
 for (i in 1:lim) {
   t1 = time();
   for (iter in 1:maxIter) {
@@ -38,7 +38,7 @@ for (i in 1:lim) {
     [X, M] = transformencode(target=data, spec=jspec);
     t4 = time();
     tft = floor((t4-t3)/1000000);
-    R[i,1] = tft;
+    R[(i-1)*maxIter + iter,1] = tft;
     print("Elapsed time for encoding criteo_fe"+iter+" = "+tft);
     nr = nrow(X);
     nc = ncol(X);
@@ -53,18 +53,18 @@ for (i in 1:lim) {
     [prior, cond] = naiveBayes(D=X_train, C=Y_train, verbose=FALSE);
     [YRaw, Y_nb] = naiveBayesPredict(X=X_validatn, P=prior, C=cond);
     t6 = time();
-    R[i,2] = floor((t6-t5)/1000000);
+    naiveBayesTime = floor((t6-t5)/1000000);
+    R[(i-1)*maxIter + iter,2] = naiveBayesTime;
+    print("Elapsed time for naiveBayes criteo_fe"+iter+" = "+naiveBayesTime);
     acc = sum(Y_nb == Y_validatn) / nrow(X_validatn) * 100;
     print("Accuracy with spec, criteo_fe"+iter+" = "+acc+"%");
   }
   t2 = time();
   totaltime = floor((t2-t1)/1000000);
-  R[i,3] = totaltime;
+  R[(i-1)*maxIter,3] = totaltime;
   print("Elapsed time for feature engineering using SystemDS = "+totaltime+" millsec");
 }
 
-R = order(target=R, by=3);
-res = R[1:5,];
-write(res, $target, format="csv", sep="\t");
+write(R, $target, format="csv", sep="\t");
 
 # Gilad Katz et al. ExploreKit: Automatic Feature Generation and Selection.2016.ICDM.
