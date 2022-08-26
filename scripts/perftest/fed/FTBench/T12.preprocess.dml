@@ -19,13 +19,22 @@
 #
 #-------------------------------------------------------------
 
-log4j.rootLogger=ERROR,console
+# FTBench T12 (Synthetic Preprocessing)
+data1 = read($data1, data_type="frame", format="csv", header=FALSE);
+data2 = read($data2, data_type="frame", format="csv", header=FALSE);
+data = cbind(data1, data2);
 
-log4j.logger.org.apache.sysds=ALL
-log4j.logger.org.apache.spark=ERROR
-log4j.logger.org.apache.hadoop=OFF
+# Slice 100K rows
+data = data[1:100000,];
+write(data, $target, data_type="frame", format=$fmt, sep=",");
+print("wrote complete data to disk");
 
-log4j.appender.console=org.apache.log4j.ConsoleAppender
-log4j.appender.console.target=System.err
-log4j.appender.console.layout=org.apache.log4j.PatternLayout
-log4j.appender.console.layout.ConversionPattern=%d{yy/MM/dd HH:mm:ss} %p %c{2}: %m%n
+binning = '{"id":1, "method":"equi-width", "numbins":10}'
+for (i in 2:ncol(data1))
+  binning = binning+',\n{"id":'+i+', "method":"equi-width", "numbins":10}';
+recode = "51";
+for (i in 52:100)
+  recode = recode+","+i;
+jspec1 = '{ "ids":true, "recode":['+recode+'], "bin":['+binning+']}'; #Binning+RC
+
+write(jspec1, $spec_file);

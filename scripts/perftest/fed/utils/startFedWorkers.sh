@@ -28,6 +28,7 @@ CMD=${1:-"systemds"}
 DATADIR=${2:-"tmp"}
 NUMFED=${3:-4}
 HOST=${4:-"localhost"}
+CONFIG_FILE=${5:-"../../conf/SystemDS-config.xml"}
 
 FILENAME=$0
 err_report() {
@@ -57,7 +58,7 @@ do
     then
       echo "Starting federated worker on port "$startport" ("$((portcounter + 1))"/"$NUMFED")"
       # start the federated worker
-      ${CMD} WORKER $startport -stats > ${workerdir}/${startport} 2>&1 &
+      ${CMD} WORKER $startport -stats -config ${CONFIG_FILE} > ${workerdir}/${startport} 2>&1 &
       workerpid=$!
       # add the connection info to the hosts list
       echo $HOST:$startport > ${hostdir}/${portcounter}_null

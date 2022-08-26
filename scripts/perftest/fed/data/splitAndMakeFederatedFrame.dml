@@ -19,13 +19,35 @@
 #
 #-------------------------------------------------------------
 
-log4j.rootLogger=ERROR,console
+# This script splits a dataframe so that it can be used for the federated tests
 
-log4j.logger.org.apache.sysds=ALL
-log4j.logger.org.apache.spark=ERROR
-log4j.logger.org.apache.hadoop=OFF
+data = $data;
+X = read(data);
+hosts = read($hosts);
+nSplit = $nSplit;
+target = ifdef($target, data+"_fed.json");
+fmt = ifdef($fmt,"text");
+hostOffset = ifdef($hostOffset,0);
 
-log4j.appender.console=org.apache.log4j.ConsoleAppender
-log4j.appender.console.target=System.err
-log4j.appender.console.layout=org.apache.log4j.PatternLayout
-log4j.appender.console.layout.ConversionPattern=%d{yy/MM/dd HH:mm:ss} %p %c{2}: %m%n
+N = nrow(X);
+M = ncol(X);
+
+factor = as.integer(floor(N / nSplit)); # number of rows per partition
+
+addresses = list();
+ranges = list();
+
+for (counter in 1:nSplit){
+  beginDim = (counter -1)* factor +1;
+  endDim = counter * factor;
+  X_part = X[beginDim:endDim,];
+  write(X_part,data+counter,format=fmt);
+  hostIX = counter + hostOffset;
+  addresses = append(addresses,as.scalar(hosts[hostIX]) + "/" + data + counter);
+  ranges = append(ranges, list(beginDim - 1, 0));
+  ranges = append(ranges, list(endDim, M));
+}
+
+x_fed = federated(type="frame",addresses=addresses, ranges=ranges);
+write(x_fed, target, format="csv");
+#vim: ft=r

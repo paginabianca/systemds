@@ -19,13 +19,26 @@
 #
 #-------------------------------------------------------------
 
-log4j.rootLogger=ERROR,console
+# FTBench T3 (Criteo DC dataset)
+data = read($data);
+spec = read($spec_file, data_type="scalar", value_type="string");
+print("("+nrow(data)+", "+ncol(data)+")");
 
-log4j.logger.org.apache.sysds=ALL
-log4j.logger.org.apache.spark=ERROR
-log4j.logger.org.apache.hadoop=OFF
+# Initiate read
+print(sum(as.matrix(data[,1])));
+lim = 10;
+R = matrix(0, rows=lim, cols=1);
+for (i in 1:lim) {
+  print("INFO: starting transformencode");
+  t1 = time();
+  [X, M] = transformencode(target=data, spec=spec);
+  t2 = time();
+  R[i,1] = floor((t2-t1)/1000000);
+  print("Elapsed time for transformations using SystemDS = "+floor((t2-t1)/1000000)+" millsec");
+}
 
-log4j.appender.console=org.apache.log4j.ConsoleAppender
-log4j.appender.console.target=System.err
-log4j.appender.console.layout=org.apache.log4j.PatternLayout
-log4j.appender.console.layout.ConversionPattern=%d{yy/MM/dd HH:mm:ss} %p %c{2}: %m%n
+R = order(target=R, by=1);
+res = R[1:5,];
+write(res, $target, format="csv", sep="\t");
+
+print("("+nrow(X)+", "+ncol(X)+")");

@@ -19,13 +19,9 @@
 #
 #-------------------------------------------------------------
 
-log4j.rootLogger=ERROR,console
+# FTBench T2 (KDD98 Preprocessing)
 
-log4j.logger.org.apache.sysds=ALL
-log4j.logger.org.apache.spark=ERROR
-log4j.logger.org.apache.hadoop=OFF
-
-log4j.appender.console=org.apache.log4j.ConsoleAppender
-log4j.appender.console.target=System.err
-log4j.appender.console.layout=org.apache.log4j.PatternLayout
-log4j.appender.console.layout.ConversionPattern=%d{yy/MM/dd HH:mm:ss} %p %c{2}: %m%n
+data = read($data, data_type="frame", format="csv", header=TRUE);
+F = data[,1:469];
+print("("+nrow(F)+", "+ncol(F)+")");
+write(F, $target, format="csv", sep=",");
