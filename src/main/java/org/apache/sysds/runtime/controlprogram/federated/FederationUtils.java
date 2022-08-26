@@ -145,7 +145,7 @@ public class FederationUtils {
 					Lop.OPERAND_DELIMITOR + varOldOut.getName() + Lop.DATATYPE_PREFIX,
 					Lop.OPERAND_DELIMITOR + String.valueOf(outputId) + Lop.DATATYPE_PREFIX);
 			}
-			
+
 			fr[j] = new FederatedRequest(RequestType.EXEC_INST, outputId, (Object) linst[j]);
 		}
 		return fr;
@@ -538,7 +538,15 @@ public class FederationUtils {
 	public static MatrixBlock bindResponses(List<Pair<FederatedRange, Future<FederatedResponse>>> readResponses, long[] dims)
 		throws Exception
 	{
-		MatrixBlock ret = new MatrixBlock((int) dims[0], (int) dims[1], false);
+        log.debug("bindResponses: dims[0]:"+dims[0]+"\tdims[1]:"+dims[1]);
+        long totalNNZ = 0;
+        for(Pair<FederatedRange, Future<FederatedResponse>> readResponse : readResponses) {
+			FederatedResponse response = readResponse.getRight().get();
+			MatrixBlock multRes = (MatrixBlock) response.getData()[0];
+            totalNNZ += multRes.getNonZeros();
+        }
+		MatrixBlock ret = new MatrixBlock((int) dims[0], (int) dims[1],
+            MatrixBlock.evalSparseFormatInMemory(dims[0],dims[1],totalNNZ));
 		for(Pair<FederatedRange, Future<FederatedResponse>> readResponse : readResponses) {
 			FederatedRange range = readResponse.getLeft();
 			FederatedResponse response = readResponse.getRight().get();
