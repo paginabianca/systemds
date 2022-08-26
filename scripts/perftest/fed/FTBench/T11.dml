@@ -1,0 +1,75 @@
+#-------------------------------------------------------------
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+#-------------------------------------------------------------
+# Set the maxLen in this script according to the abstract sequence
+
+# FTBench T11 (Paper Abstract dataset. Embeddings)
+
+lim = 5;
+R = matrix(0, rows=lim, cols=1);
+t1 = time();
+# Read the sequence-of-words and the dictionary
+data = read($data, data_type="frame", format="csv", header=FALSE);
+meta = read($metaframe, data_type="frame", format="csv", sep="--", header=FALSE);
+# Read the pre-trained model
+W = read($embeddings, header=FALSE);
+# W = read("file:/home/aphani/datasets/wiki_embeddings/wiki_embeddings", header=FALSE);
+# Initiate reads
+print(toString(data[1,1]));
+print(toString(meta[1:10,]));
+chunk = W[nrow(W)-5:nrow(W),1:5];
+print(toString(chunk));
+
+# Approach1: RC col1 and pass it to a ctable
+# Approach2: DC col1. DC is equivelant of RC + ctable
+#spec = "{ ids:true, recode:[1], dummycode:[1]}"; #DC 1st column
+spec = "{ ids:true, recode:[1]}"; #RC 1st column
+t2 = time();
+print("Elapsed time for reading = "+floor((t2-t1)/1000000)+" millsec");
+maxLen = 1000;
+batchSize = 10000 * maxLen;
+maxiter = ceil(nrow(data)/batchSize);
+iter = 0;
+beg = 1;
+timer = 0
+
+# Mini-batch processing
+while (iter < maxiter) {
+  end = beg + batchSize-1;
+  batch = data[beg:end,];
+  print("INFO: starting transformapply");
+  t1 = time();
+  # Use the externally built dictionary to transformapply
+  X_enc = transformapply(target=batch, spec=spec, meta=meta);
+  print("("+nrow(X_enc)+", "+ncol(X_enc)+")");
+  X = table(seq(1,nrow(X_enc)), X_enc[,1]); #Approach1 with RC
+  # Construct the embedding matrix (X axis -> abstracts)
+  embd =  matrix(X%*%W, rows=nrow(X)/maxLen, cols=maxLen*300);
+  print("("+nrow(embd)+", "+ncol(embd)+")");
+  t2 = time();
+  print("Elapsed time for transformapply + ctable = "+floor((t2-t1)/1000000)+" millsec");
+  timer = timer + floor((t2-t1)/1000000);
+  R[i,1] = R[i,1] + floor((t2-t1)/1000000);
+  iter = iter + 1;
+  beg = end + 1;
+}
+write(R, $target, format="csv", sep="\t");
+print("Elapsed time for all batches = "+timer+" millsec");
+

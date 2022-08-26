@@ -17,5 +17,6 @@
  * under the License.
 -->
 <root>
+    <sysds.cp.parallel.ops>true</sysds.cp.parallel.ops>
     <sysds.native.blas>openblas</sysds.native.blas>
 </root>

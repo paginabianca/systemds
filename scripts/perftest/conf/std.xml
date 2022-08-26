@@ -17,4 +17,5 @@
  * under the License.
 -->
 <root>
+    <sysds.cp.parallel.ops>true</sysds.cp.parallel.ops>
 </root>

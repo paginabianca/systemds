@@ -53,5 +53,3 @@ do
    echo "-- Running Kmeans on "$d >> results/times.txt;
    ./runKmeans.sh ${BASE}/X${d} ${MAXITR} ${BASE} ${COMMAND} &> logs/runKmeans_${d}.out;
 done
-
-echo -e "\n\n" >> results/times.txt
