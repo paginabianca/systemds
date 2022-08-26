@@ -29,6 +29,7 @@ NUMFED=${4:-2}
 DATA=${5:-"${DATADIR}/criteo_day21_5M_cleaned"}
 DATA_BASENAME=$(basename "${DATA}")
 BASEPATH=$(dirname "$0")
+CONFIG_FILE=${6:-"../conf/SystemDS-config.xml"}
 
 # Error Prints
 err_report(){
@@ -38,12 +39,12 @@ trap 'err_report $LINENO' ERR
 
 # Set Properties
 export SYSDS_QUIET=1
-export LOG4JPROP=${BASEPATH}'/../conf/log4j-off.properties'
+export LOG4JPROP=${BASEPATH}'/../conf/log4j.properties'
 export SYSTEMDS_STANDALONE_OPTS="-Xmx120g -Xms80g -Xmn50g"
 
 # Create Temp Directory
-if [ ! -d "${TEMPDIR}" ]; then
-  mkdir -p "${TEMPDIR}"
+if [ ! -d ${TEMPDIR} ]; then
+  mkdir -p ${TEMPDIR}
 fi
 
 # Start the Federated Workers on Localhost
@@ -64,10 +65,10 @@ do
 
   echo "FTBench"
   ${CMD} -f "${BASEPATH}"/FTBench/T15.dml \
-    --config "${BASEPATH}"/../conf/SystemDS-config.xml \
+    --config "${CONFIG_FILE}" \
     --nvargs \
       data="${TEMPDIR}"/"${DATA_BASENAME}".${d}.fed \
-      target="${TEMPDIR}"/"${DATA_BASENAME}".${d}.result \
+      target="${TEMPDIR}"/"$(basename ${CONFIG_FILE})".${d}.result \
       spec_file="${BASEPATH}"/data/${d} \
       fmt="csv"
 done
