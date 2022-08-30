@@ -20,19 +20,22 @@
 #
 #-------------------------------------------------------------
 
+# This script runs the federated FTBench T1 (UCI Adult dataset)
+
 # Read Parameters
 FILENAME=$0
-NUMFED=3
-CMD="systemds"
-DATADIR=${1:-"~/datasets"}
-TEMPDIR=${2:-"~/datasets/temp/T2"}
-DATA="${DATADIR}/KDD98.csv"
+CMD=${1:-"systemds"}
+DATADIR=${2:-"temp/adult"}
+TEMPDIR=${3:-"temp/adult"}
+NUMFED=${4:-2}
+DATA=${5:-"${DATADIR}"/adult.csv}
 DATA_BASENAME=$(basename "${DATA}")
 BASEPATH=$(dirname "$0")
+CONFIG_FILE=${6:-"../../../conf/SystemDS-config-defaults.xml"}
 
 # Error Prints
 err_report(){
-  echo "Error in ${FILENAME} on line $1"
+  echo "Error in ""${FILENAME}"" on line $1"
 }
 trap 'err_report $LINENO' ERR
 
@@ -46,23 +49,24 @@ if [ ! -d ${TEMPDIR} ]; then
   mkdir -p ${TEMPDIR}
 fi
 
-for d in "T2_spec2"
+echo "Split And Make Federated"
+${CMD} -f "${BASEPATH}"/data/splitAndMakeFederatedFrame.dml \
+  --config "${CONFIG_FILE}"/../conf/SystemDS-config.xml \
+  --nvargs \
+  data="${DATA}" \
+  nSplit="${NUMFED}" \
+  target="${TEMPDIR}"/"${DATA_BASENAME}".fed\
+  hosts="${TEMPDIR}"/workers/hosts \
+  fmt="csv"
+
+for d in "T1_spec1" "T1_spec2"
 do
-  echo "Preprocessing"
-  ${CMD} -f "${BASEPATH}"/FTBench/T2.preprocess.dml \
-    --config "${BASEPATH}"/../conf/SystemDS-config.xml \
+  echo "FTBench ${d}"
+  ${CMD} -f "${BASEPATH}"/FTBench/T1.dml \
+    --config "${CONFIG_FILE}" \
     --nvargs \
-      data="${DATA}" \
-      target="${TEMPDIR}"/"${DATA_BASENAME}".cleaned \
-
-
-  echo "Split And Make Federated"
-  ${CMD} -f "${BASEPATH}"/data/splitAndMakeFederatedFrame.dml \
-    --config "${BASEPATH}"/../conf/SystemDS-config.xml \
-    --nvargs \
-      data="${TEMPDIR}"/"${DATA_BASENAME}".cleaned \
-      nSplit="${NUMFED}" \
-      target="${TEMPDIR}"/"${DATA_BASENAME}".${d}.fed \
-      hosts="${TEMPDIR}"/workers/hosts \
+      data="${TEMPDIR}"/"${DATA_BASENAME}".fed\
+      target="${TEMPDIR}"/"$(basename ${CONFIG_FILE})".${d}.result \
+      spec_file="${BASEPATH}"/data/"${d}".json \
       fmt="csv"
 done

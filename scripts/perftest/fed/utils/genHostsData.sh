@@ -36,7 +36,7 @@
 #   -  ~/my/hosts/file/hosts.mtd <- a file
 
 # Edit the hosts where your workers are running.
-declare -a HOSTS=("129.27.206.5:8022" "129.27.206.6:8022" "129.27.206.10:8022")
+declare -a HOSTS=("129.27.206.6:8022" "129.27.206.14:8022")
 
 OUT=${1:-"~/datasets/temp"}
 HOSTS_META="{\"data_type\": \"list\", \"rows\": ${#HOSTS[@]}, \"cols\": 1, \"format\": \"text\"}"
