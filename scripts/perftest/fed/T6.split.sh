@@ -52,7 +52,7 @@ do
   ${CMD} -f "${BASEPATH}"/data/splitAndMakeFederatedFrame.dml \
     --config "${BASEPATH}"/../conf/SystemDS-config.xml \
     --nvargs \
-      data="${TEMPDIR}"/"${DATA_BASENAME}".cleaned \
+      data="${DATA}" \
       nSplit="${NUMFED}" \
       target="${TEMPDIR}"/"${DATA_BASENAME}".fed \
       hosts="${TEMPDIR}"/workers/hosts \
