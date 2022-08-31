@@ -54,7 +54,7 @@ do
     --nvargs \
       data="${TEMPDIR}"/"${DATA_BASENAME}".cleaned \
       nSplit="${NUMFED}" \
-      target="${TEMPDIR}"/"${DATA_BASENAME}".${d}.fed \
+      target="${TEMPDIR}"/"${DATA_BASENAME}".fed \
       hosts="${TEMPDIR}"/workers/hosts \
       fmt="csv"
 done
