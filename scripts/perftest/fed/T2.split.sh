@@ -46,23 +46,19 @@ if [ ! -d ${TEMPDIR} ]; then
   mkdir -p ${TEMPDIR}
 fi
 
-for d in "T2_spec2"
-do
-  echo "Preprocessing"
-  ${CMD} -f "${BASEPATH}"/FTBench/T2.preprocess.dml \
-    --config "${BASEPATH}"/../conf/SystemDS-config.xml \
-    --nvargs \
-      data="${DATA}" \
-      target="${TEMPDIR}"/"${DATA_BASENAME}".cleaned \
-
+echo "Preprocessing"
+${CMD} -f "${BASEPATH}"/FTBench/T2.preprocess.dml \
+  --config "${BASEPATH}"/../conf/SystemDS-config.xml \
+  --nvargs \
+    data="${DATA}" \
+    target="${TEMPDIR}"/"${DATA_BASENAME}".cleaned \
 
   echo "Split And Make Federated"
-  ${CMD} -f "${BASEPATH}"/data/splitAndMakeFederatedFrame.dml \
-    --config "${BASEPATH}"/../conf/SystemDS-config.xml \
-    --nvargs \
-      data="${TEMPDIR}"/"${DATA_BASENAME}".cleaned \
-      nSplit="${NUMFED}" \
-      target="${TEMPDIR}"/"${DATA_BASENAME}".${d}.fed \
-      hosts="${TEMPDIR}"/workers/hosts \
-      fmt="csv"
-done
+${CMD} -f "${BASEPATH}"/data/splitAndMakeFederatedFrame.dml \
+  --config "${BASEPATH}"/../conf/SystemDS-config.xml \
+  --nvargs \
+    data="${TEMPDIR}"/"${DATA_BASENAME}".cleaned \
+    nSplit="${NUMFED}" \
+    target="${TEMPDIR}"/"${DATA_BASENAME}".fed \
+    hosts="${TEMPDIR}"/workers/hosts \
+    fmt="csv"

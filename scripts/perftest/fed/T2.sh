@@ -56,7 +56,7 @@ do
   ${CMD} -f "${BASEPATH}"/FTBench/T2.dml \
     --config "${CONFIG_FILE}" \
     --nvargs \
-      data="${TEMPDIR}"/"${DATA_BASENAME}".${d}.fed \
+      data="${TEMPDIR}"/"${DATA_BASENAME}".fed \
       target="${TEMPDIR}"/"${DATA_BASENAME}".${d}.result \
       spec_file="${BASEPATH}"/data/${d}.json \
       fmt="csv"

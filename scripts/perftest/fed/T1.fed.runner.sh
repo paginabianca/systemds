@@ -51,13 +51,13 @@ fi
 
 echo "Split And Make Federated"
 ${CMD} -f "${BASEPATH}"/data/splitAndMakeFederatedFrame.dml \
-  --config "${CONFIG_FILE}"/../conf/SystemDS-config.xml \
+  --config "${CONFIG_FILE}" \
   --nvargs \
-  data="${DATA}" \
-  nSplit="${NUMFED}" \
-  target="${TEMPDIR}"/"${DATA_BASENAME}".fed\
-  hosts="${TEMPDIR}"/workers/hosts \
-  fmt="csv"
+    data="${DATA}" \
+    nSplit="${NUMFED}" \
+    target="${TEMPDIR}"/"${DATA_BASENAME}".fed\
+    hosts="${TEMPDIR}"/workers/hosts \
+    fmt="csv"
 
 for d in "T1_spec1" "T1_spec2"
 do
