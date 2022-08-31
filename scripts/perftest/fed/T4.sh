@@ -23,10 +23,10 @@
 # Read Parameters
 FILENAME=$0
 CMD=${1:-"systemds"}
-DATADIR=${2:-"temp/T3"}
-TEMPDIR=${3:-"temp/T3"}
+DATADIR=${2:-"temp/T4"}
+TEMPDIR=${3:-"temp/T4"}
 NUMFED=${4:-2}
-DATA=${5:-"${DATADIR}/criteo_day21_10M"}
+DATA=${5:-"${DATADIR}/criteo_day21_10M_cleaned"}
 DATA_BASENAME=$(basename "${DATA}")
 BASEPATH=$(dirname "$0")
 CONFIG_FILE=${6:-"../conf/SystemDS-config.xml"}
@@ -47,23 +47,24 @@ if [ ! -d ${TEMPDIR} ]; then
   mkdir -p ${TEMPDIR}
 fi
 
-for d in "T3_spec"
-do
-  echo "Split And Make Federated"
-  ${CMD} -f "${BASEPATH}"/data/splitAndMakeFederatedFrame.dml \
-    --config "${BASEPATH}"/../conf/SystemDS-config.xml \
-    --nvargs \
-      data="${DATA}" \
-      nSplit="${NUMFED}" \
-      target="${TEMPDIR}"/"${DATA_BASENAME}".${d}.fed \
-      hosts="${TEMPDIR}"/workers/hosts \
-      fmt="csv"
 
+echo "Split And Make Federated"
+${CMD} -f "${BASEPATH}"/data/splitAndMakeFederatedFrame.dml \
+  --config "${BASEPATH}"/../conf/SystemDS-config.xml \
+  --nvargs \
+  data="${DATA}" \
+  nSplit="${NUMFED}" \
+  target="${TEMPDIR}"/"${DATA_BASENAME}".fed \
+  hosts="${TEMPDIR}"/workers/hosts \
+  fmt="csv"
+
+for d in "T4_spec1" "T4_spec2"
+do
   echo "FTBench"
-  ${CMD} -f "${BASEPATH}"/FTBench/T3.dml \
+  ${CMD} -f "${BASEPATH}"/FTBench/T4.dml \
     --config "${CONFIG_FILE}" \
     --nvargs \
-      data="${TEMPDIR}"/"${DATA_BASENAME}".${d}.fed \
+      data="${TEMPDIR}"/"${DATA_BASENAME}".fed \
       target="${TEMPDIR}"/"$(basename ${CONFIG_FILE})".${d}.result \
       spec_file="${BASEPATH}"/data/${d}.json \
       fmt="csv"
