@@ -71,7 +71,7 @@ for (i in 1:lim) {
 
 R = order(target=R, by=1);
 res = R[1:5,];
-write(res, $target, format="csv", sep="\t");
+write(R, $target, format="csv", sep="\t");
 print("number of rows "+nrow(X_en) + "\nnumber of cols " + ncol(X_en));
 
 # vim: ft=r
