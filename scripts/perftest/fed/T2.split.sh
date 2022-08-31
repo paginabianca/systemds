@@ -22,7 +22,7 @@
 
 # Read Parameters
 FILENAME=$0
-NUMFED=3
+NUMFED=2
 CMD="systemds"
 DATADIR=${1:-"~/datasets"}
 TEMPDIR=${2:-"~/datasets/temp/T2"}
