@@ -20,19 +20,16 @@
 #
 #-------------------------------------------------------------
 
-# This script runs the federated FTBench T8 (home credit)
-
 # Read Parameters
 FILENAME=$0
 CMD=${1:-"systemds"}
-DATADIR=${2:-"temp/homeCredit"}
-TEMPDIR=${3:-"temp/homeCredit"}
+DATADIR=${2:-"temp/T9"}
+TEMPDIR=${3:-"temp/T9"}
 NUMFED=${4:-2}
-DATA=${5:-"${DATADIR}/homeCreditTrain.csv"}
+DATA=${5:-"${DATADIR}/catindattrain.csv"}
 DATA_BASENAME=$(basename "${DATA}")
 BASEPATH=$(dirname "$0")
 CONFIG_FILE=${6:-"../conf/SystemDS-config.xml"}
-
 
 # Error Prints
 err_report(){
@@ -43,21 +40,35 @@ trap 'err_report $LINENO' ERR
 # Set Properties
 export SYSDS_QUIET=1
 export LOG4JPROP=${BASEPATH}'/../conf/log4j.properties'
+export SYSTEMDS_STANDALONE_OPTS="-Xmx120g -Xms80g -Xmn50g"
 
-for d in "T8_spec"
+# Create Temp Directory
+if [ ! -d ${TEMPDIR} ]; then
+  mkdir -p ${TEMPDIR}
+fi
+
+for d in "T9_spec"
 do
-  echo "Split And Make Federated"
-  ${CMD} -f "${BASEPATH}"/data/splitAndMakeFederatedFrame.dml \
-    --config "${BASEPATH}" \
+  echo "Preprocessing"
+  ${CMD} -f "${BASEPATH}"/FTBench/T9.preprocess.dml \
+    --config "${BASEPATH}"/../conf/SystemDS-config.xml \
     --nvargs \
       data="${DATA}" \
+      target="${TEMPDIR}"/"${DATA_BASENAME}".scaled \
+
+
+  echo "Split And Make Federated"
+  ${CMD} -f "${BASEPATH}"/data/splitAndMakeFederatedFrame.dml \
+    --config "${BASEPATH}"/../conf/SystemDS-config.xml \
+    --nvargs \
+      data="${TEMPDIR}"/"${DATA_BASENAME}".scaled \
       nSplit="${NUMFED}" \
       target="${TEMPDIR}"/"${DATA_BASENAME}".${d}.fed \
       hosts="${TEMPDIR}"/workers/hosts \
       fmt="csv"
 
   echo "FTBench"
-  ${CMD} -f "${BASEPATH}"/FTBench/T8.dml \
+  ${CMD} -f "${BASEPATH}"/FTBench/T9.dml \
     --config "${CONFIG_FILE}" \
     --nvargs \
       data="${TEMPDIR}"/"${DATA_BASENAME}".${d}.fed \

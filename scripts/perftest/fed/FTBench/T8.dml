@@ -39,6 +39,6 @@ for (i in 1:lim) {
 
 R = order(target=R, by=1);
 res = R[1:5,];
-write(res, target, format="csv", sep="\t");
+write(R, target, format="csv", sep="\t");
 print("(" + nrow(X_en) + ", " + ncol(X_en) + ")");
 #vim: ft=r
