@@ -59,10 +59,10 @@ import org.xml.sax.SAXException;
 public class DMLConfig
 {
 	public static final String DEFAULT_SYSTEMDS_CONFIG_FILEPATH = "./SystemDS-config.xml";
-	
+
 	private static final Log LOG = LogFactory.getLog(DMLConfig.class.getName());
-	
-	// external names of configuration properties 
+
+	// external names of configuration properties
 	// (single point of change for all internal refs)
 	public static final String LOCAL_TMP_DIR        = "sysds.localtmpdir";
 	public static final String SCRATCH_SPACE        = "sysds.scratch";
@@ -80,9 +80,9 @@ public class DMLConfig
 	public static final String COMPRESSED_LINALG    = "sysds.compressed.linalg";
 	public static final String COMPRESSED_LOSSY     = "sysds.compressed.lossy";
 	public static final String COMPRESSED_VALID_COMPRESSIONS = "sysds.compressed.valid.compressions";
-	public static final String COMPRESSED_OVERLAPPING = "sysds.compressed.overlapping"; 
-	public static final String COMPRESSED_SAMPLING_RATIO = "sysds.compressed.sampling.ratio"; 
-	public static final String COMPRESSED_COCODE    = "sysds.compressed.cocode"; 
+	public static final String COMPRESSED_OVERLAPPING = "sysds.compressed.overlapping";
+	public static final String COMPRESSED_SAMPLING_RATIO = "sysds.compressed.sampling.ratio";
+	public static final String COMPRESSED_COCODE    = "sysds.compressed.cocode";
 	public static final String COMPRESSED_COST_MODEL= "sysds.compressed.costmodel";
 	public static final String COMPRESSED_TRANSPOSE = "sysds.compressed.transpose";
 	public static final String NATIVE_BLAS          = "sysds.native.blas";
@@ -105,7 +105,7 @@ public class DMLConfig
 	public static final String COMPILERASSISTED_RW  = "sysds.lineage.compilerassisted"; // boolean: whether to apply compiler assisted rewrites
 	public static final String BUFFERPOOL_LIMIT     = "sysds.caching.bufferpoollimit"; // max buffer pool size in percentage
 	public static final String MEMORY_MANAGER       = "sysds.caching.memorymanager"; // static or unified memory manager
-	
+
 	// Fraction of available memory to use. The available memory is computer when the GPUContext is created
 	// to handle the tradeoff on calling cudaMemGetInfo too often.
 	public static final String GPU_MEMORY_UTILIZATION_FACTOR = "sysds.gpu.memory.util.factor";
@@ -120,12 +120,13 @@ public class DMLConfig
 	public static final String FEDERATED_PLANNER = "sysds.federated.planner";
 	public static final String FEDERATED_PAR_INST = "sysds.federated.par_inst";
 	public static final String FEDERATED_PAR_CONN = "sysds.federated.par_conn";
+	public static final String FEDERATED_PAR_TRANSFORMENCODE = "sysds.federated.par_transformencode";
 	public static final int DEFAULT_FEDERATED_PORT = 4040; // borrowed default Spark Port
 	public static final int DEFAULT_NUMBER_OF_FEDERATED_WORKER_THREADS = 8;
-	
+
 	//internal config
 	public static final String DEFAULT_SHARED_DIR_PERMISSION = "777"; //for local fs and DFS
-	
+
 	//configuration default values
 	private static HashMap<String, String> _defaultVals = null;
 
@@ -133,7 +134,7 @@ public class DMLConfig
 	private Element _xmlRoot = null;
 	private DocumentBuilder _documentBuilder = null;
 	private Document _document = null;
-	
+
 	static
 	{
 		_defaultVals = new HashMap<>();
@@ -189,19 +190,20 @@ public class DMLConfig
 		_defaultVals.put(FEDERATED_PLANNER,      FederatedPlanner.RUNTIME.name());
 		_defaultVals.put(FEDERATED_PAR_CONN,     "-1"); // vcores
 		_defaultVals.put(FEDERATED_PAR_INST,     "-1"); // vcores
-	}
-	
-	public DMLConfig() {
-		
+		_defaultVals.put(FEDERATED_PAR_TRANSFORMENCODE,     "false"); // federated parallel transformencode
 	}
 
-	public DMLConfig(String fileName) 
+	public DMLConfig() {
+
+	}
+
+	public DMLConfig(String fileName)
 		throws FileNotFoundException
 	{
 		this( fileName, false );
 	}
-	
-	public DMLConfig(String fileName, boolean silent) 
+
+	public DMLConfig(String fileName, boolean silent)
 		throws FileNotFoundException
 	{
 		_fileName = fileName;
@@ -210,21 +212,21 @@ public class DMLConfig
 		} catch (FileNotFoundException fnfe) {
 			throw fnfe;
 		} catch (Exception e){
-			//log error, since signature of generated ParseException doesn't allow to pass it 
+			//log error, since signature of generated ParseException doesn't allow to pass it
 			if( !silent )
 				LOG.error("Failed to parse DML config file ",e);
 			throw new ParseException("ERROR: error parsing DMLConfig file " + fileName);
 		}
 	}
-	
+
 	public DMLConfig( Element root ) {
 		_xmlRoot = root;
 	}
-	
+
 	public DMLConfig( DMLConfig dmlconf ) {
 		set(dmlconf);
 	}
-	
+
 	public void set(DMLConfig dmlconf) {
 		_fileName = dmlconf._fileName;
 		_xmlRoot = dmlconf._xmlRoot;
@@ -238,7 +240,7 @@ public class DMLConfig
 	 * @throws SAXException
 	 * @throws IOException
 	 */
-	private void parseConfig () throws ParserConfigurationException, SAXException, IOException 
+	private void parseConfig () throws ParserConfigurationException, SAXException, IOException
 	{
 		DocumentBuilder builder = getDocumentBuilder();
 		_document = null;
@@ -270,15 +272,15 @@ public class DMLConfig
 
 	/**
 	 * Method to get string value of a configuration parameter
-	 * Handles processing of configuration parameters 
+	 * Handles processing of configuration parameters
 	 * @param tagName the name of the DMLConfig parameter being retrieved
-	 * @return a string representation of the DMLConfig parameter value.  
+	 * @return a string representation of the DMLConfig parameter value.
 	 */
-	public String getTextValue(String tagName) 
+	public String getTextValue(String tagName)
 	{
 		//get the actual value
 		String retVal = (_xmlRoot!=null)?getTextValue(_xmlRoot,tagName):null;
-		
+
 		if (retVal == null)
 		{
 			if( _defaultVals.containsKey(tagName) )
@@ -286,25 +288,25 @@ public class DMLConfig
 			else
 				LOG.error("Error: requested dml configuration property '"+tagName+"' is invalid.");
 		}
-		
+
 		return retVal;
 	}
-	
+
 	public int getIntValue( String tagName )
 	{
 		return Integer.parseInt( getTextValue(tagName) );
 	}
-	
+
 	public boolean getBooleanValue( String tagName )
 	{
 		return Boolean.parseBoolean( getTextValue(tagName) );
 	}
-	
+
 	public double getDoubleValue( String tagName )
 	{
 		return Double.parseDouble( getTextValue(tagName) );
 	}
-	
+
 	/**
 	 * Method to get the string value of an element identified by a tag name
 	 * @param element the DOM element
@@ -317,11 +319,11 @@ public class DMLConfig
 		if (list != null && list.getLength() > 0) {
 			Element elem = (Element) list.item(0);
 			textVal = elem.getFirstChild().getNodeValue();
-			
+
 		}
 		return textVal;
 	}
-	
+
 
 	/**
 	 * Method to update the key value
@@ -352,7 +354,7 @@ public class DMLConfig
 		}
 	}
 
-	public synchronized String serializeDMLConfig() 
+	public synchronized String serializeDMLConfig()
 	{
 		String ret = null;
 		try {
@@ -367,10 +369,10 @@ public class DMLConfig
 		catch(Exception ex) {
 			throw new DMLRuntimeException("Unable to serialize DML config.", ex);
 		}
-		
+
 		return ret;
 	}
-	
+
 	public static DMLConfig parseDMLConfig( String content ) {
 		DMLConfig ret = null;
 		try {
@@ -383,10 +385,10 @@ public class DMLConfig
 		catch(Exception ex) {
 			throw new DMLRuntimeException("Unable to parse DML config.", ex);
 		}
-		
+
 		return ret;
 	}
-	
+
 	/**
 	 * Start with the internal default settings, then merge in the
 	 * settings from any specified configuration file, if available.
@@ -430,7 +432,7 @@ public class DMLConfig
 	}
 
 	public String getConfigInfo()  {
-		String[] tmpConfig = new String[] { 
+		String[] tmpConfig = new String[] {
 			LOCAL_TMP_DIR,SCRATCH_SPACE,OPTIMIZATION_LEVEL, DEFAULT_BLOCK_SIZE,
 			CP_PARALLEL_OPS, CP_PARALLEL_IO, PARALLEL_ENCODE, NATIVE_BLAS, NATIVE_BLAS_DIR,
 			COMPRESSED_LINALG, COMPRESSED_LOSSY, COMPRESSED_VALID_COMPRESSIONS, COMPRESSED_OVERLAPPING,
@@ -440,9 +442,9 @@ public class DMLConfig
 			PRINT_GPU_MEMORY_INFO, AVAILABLE_GPUS, SYNCHRONIZE_GPU, EAGER_CUDA_FREE, FLOATING_POINT_PRECISION,
 			GPU_EVICTION_POLICY, LOCAL_SPARK_NUM_THREADS, EVICTION_SHADOW_BUFFERSIZE, GPU_MEMORY_ALLOCATOR,
 			GPU_MEMORY_UTILIZATION_FACTOR, USE_SSL_FEDERATED_COMMUNICATION, DEFAULT_FEDERATED_INITIALIZATION_TIMEOUT,
-			FEDERATED_TIMEOUT
-		}; 
-		
+			FEDERATED_TIMEOUT, FEDERATED_PAR_TRANSFORMENCODE
+		};
+
 		StringBuilder sb = new StringBuilder();
 		for( String tmp : tmpConfig ) {
 			sb.append("INFO: ");
@@ -451,20 +453,20 @@ public class DMLConfig
 			sb.append(getTextValue(tmp));
 			sb.append("\n");
 		}
-		
+
 		return sb.toString();
 	}
-	
+
 	public static String getDefaultTextValue( String key ) {
 		return _defaultVals.get( key );
 	}
-	
+
 	@Override
 	public DMLConfig clone() {
 		DMLConfig conf = new DMLConfig();
 		conf._fileName = _fileName;
 		conf._xmlRoot = (Element) _xmlRoot.cloneNode(true);
-		
+
 		return conf;
 	}
 }
